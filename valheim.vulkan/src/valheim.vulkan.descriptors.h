@@ -43,8 +43,8 @@ void valheim_initDescriptorSetManager(valheim_VulkanContext *context);
 
 void valheim_deinitDescriptorSetManager(valheim_VulkanContext *context);
 
-void valheim_addDescriptorSet(valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *outDescriptorSet);
+void valheim_addDescriptorSet(valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *descriptorSet);
 
-b8 valheim_createDescriptors(valheim_VulkanContext *context, valheim_DescriptorSetCreateInfo *createInfo, valheim_VulkanDescriptorSet *outDescriptorSet);
+b8 valheim_initDescriptors(valheim_VulkanContext *context, valheim_DescriptorSetCreateInfo *createInfo, valheim_VulkanDescriptorSet *descriptorSet);
 
 #endif //VALHEIM_VALHEIM_VULKAN_DESCRIPTORS_H

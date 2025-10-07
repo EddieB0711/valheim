@@ -10,7 +10,7 @@
 
 static b8 valheim_createBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, VkBufferUsageFlags usage, valheim_VulkanBuffer *outBuffer) {
 	valheim_VulkanBuffer stagingHandle;
-	if (!valheim_createStagingBuffer(context, data, size, &stagingHandle)) {
+	if (!valheim_initStagingBuffer(context, data, size, &stagingHandle)) {
 		return false;
 	}
 
@@ -23,7 +23,7 @@ static b8 valheim_createBuffer(valheim_VulkanContext *context, const void *data,
 	VkBuffer buffer;
 	VkResult result = vkCreateBuffer(context->device, &createInfo, NULL, &buffer);
 	if (result != VK_SUCCESS) {
-		valheim_destroyBuffer(context, stagingHandle);
+		valheim_deinitBuffer(context, stagingHandle);
 		return false;
 	}
 
@@ -39,7 +39,7 @@ static b8 valheim_createBuffer(valheim_VulkanContext *context, const void *data,
 	result = vkAllocateMemory(context->device, &allocateInfo, NULL, &memory);
 
 	if (result != VK_SUCCESS) {
-		valheim_destroyBuffer(context, stagingHandle);
+		valheim_deinitBuffer(context, stagingHandle);
 		vkDestroyBuffer(context->device, buffer, NULL);
 		return false;
 	}
@@ -48,7 +48,7 @@ static b8 valheim_createBuffer(valheim_VulkanContext *context, const void *data,
 
 	VkCommandBuffer commandBuffer;
 	if (!valheim_beginTransientCommand(context, &commandBuffer)) {
-		valheim_destroyBuffer(context, stagingHandle);
+		valheim_deinitBuffer(context, stagingHandle);
 		vkDestroyBuffer(context->device, buffer, NULL);
 		vkFreeMemory(context->device, memory, NULL);
 		return false;
@@ -60,7 +60,7 @@ static b8 valheim_createBuffer(valheim_VulkanContext *context, const void *data,
 	vkCmdCopyBuffer(commandBuffer, context->bufferManager.buffers.data[stagingHandle], buffer, 1, &region);
 
 	valheim_endTransientCommand(context, commandBuffer);
-	valheim_destroyBuffer(context, stagingHandle);
+	valheim_deinitBuffer(context, stagingHandle);
 
 	*outBuffer = (valheim_VulkanBuffer)valheim_addBuffer(context, buffer, memory, size);
 	return true;
@@ -110,7 +110,7 @@ u32 valheim_addBuffer(valheim_VulkanContext *context, VkBuffer buffer, VkDeviceM
 	return 0xFFFFFFF;
 }
 
-b8 valheim_createStagingBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, valheim_VulkanBuffer *outBuffer) {
+b8 valheim_initStagingBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, valheim_VulkanBuffer *outBuffer) {
 	VkBufferCreateInfo createInfo = {0};
 	createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	createInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
@@ -145,11 +145,11 @@ b8 valheim_createStagingBuffer(valheim_VulkanContext *context, const void *data,
 	return true;
 }
 
-b8 valheim_createVertexBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, valheim_VulkanBuffer *outBuffer) {
+b8 valheim_initVertexBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, valheim_VulkanBuffer *outBuffer) {
 	return valheim_createBuffer(context, data, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, outBuffer);
 }
 
-b8 valheim_createIndexBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, valheim_VulkanBuffer *outBuffer) {
+b8 valheim_initIndexBuffer(valheim_VulkanContext *context, const void *data, VkDeviceSize size, valheim_VulkanBuffer *outBuffer) {
 	return valheim_createBuffer(context, data, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, outBuffer);
 }
 
@@ -189,7 +189,7 @@ b8 valheim_initUniformBuffer(valheim_VulkanContext *context, VkDeviceSize size, 
 	return true;
 }
 
-void valheim_destroyBuffer(valheim_VulkanContext *context, valheim_VulkanBuffer buffer) {
+void valheim_deinitBuffer(valheim_VulkanContext *context, valheim_VulkanBuffer buffer) {
 	vkDestroyBuffer(context->device, context->bufferManager.buffers.data[buffer], NULL);
 	vkFreeMemory(context->device, context->bufferManager.bufferMemory.data[buffer], NULL);
 

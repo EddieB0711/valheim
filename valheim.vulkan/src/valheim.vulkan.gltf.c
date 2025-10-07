@@ -102,10 +102,10 @@ static b8 valheim_traverseNode(valheim_VulkanContext *context, const struct aiSc
 		meshopt_optimizeVertexCache(indices.data, indices.data, indices.length, vertices.length);
 
 		valheim_VulkanBuffer vertexBuffer;
-		valheim_createVertexBuffer(context, vertices.data, sizeof(valheim_Vertex) * vertices.length, &vertexBuffer);
+		valheim_initVertexBuffer(context, vertices.data, sizeof(valheim_Vertex) * vertices.length, &vertexBuffer);
 
 		valheim_VulkanBuffer indexBuffer;
-		valheim_createIndexBuffer(context, indices.data, sizeof(u32) * indices.length, &indexBuffer);
+		valheim_initIndexBuffer(context, indices.data, sizeof(u32) * indices.length, &indexBuffer);
 
 		valheim_VulkanTexture texture;
 		valheim_createTexture(context, "assets/Default_albedo.jpg", &texture);
@@ -141,7 +141,7 @@ static b8 valheim_traverseNode(valheim_VulkanContext *context, const struct aiSc
 		descriptorCreateInfo.descriptorTypeCount = VALHEIM_ARRAY_LEN(descriptorTypes);
 		descriptorCreateInfo.destriptorSetLayouts = descriptorSetLayouts;
 
-		valheim_createDescriptors(context, &descriptorCreateInfo, &vulkanScene->descriptorSet);
+		valheim_initDescriptors(context, &descriptorCreateInfo, &vulkanScene->descriptorSet);
 	}
 
 	for (u32 iChild = 0; iChild < node->mNumChildren; ++iChild) {

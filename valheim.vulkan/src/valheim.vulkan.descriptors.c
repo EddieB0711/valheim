@@ -1,9 +1,4 @@
-//
-// Created by Eddie Boyle on 9/9/2025.
-//
-
 #include "valheim.vulkan.descriptors.h"
-
 #include <valheim.arena.allocator.h>
 
 void valheim_initDescriptorSetManager(valheim_VulkanContext *context) {
@@ -36,8 +31,8 @@ void valheim_deinitDescriptorSetManager(valheim_VulkanContext *context) {
 	valheim_deinitArray(context->descriptorSetManager.freeList);
 }
 
-void valheim_addDescriptorSet(valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *outDescriptorSet) {
-	*outDescriptorSet = -1;
+void valheim_addDescriptorSet(valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *descriptorSet) {
+	*descriptorSet = -1;
 
 	for (u32 iSet = 0; iSet < context->descriptorSetManager.descriptorSets.length; ++iSet) {
 		if (context->descriptorSetManager.freeList.data[iSet]) {
@@ -45,13 +40,13 @@ void valheim_addDescriptorSet(valheim_VulkanContext *context, valheim_Descriptor
 			context->descriptorSetManager.descriptorSets.data[iSet] = addInfo->descriptorSets;
 			context->descriptorSetManager.descriptorPools.data[iSet] = addInfo->descriptorPool;
 			context->descriptorSetManager.descriptorSetCounts.data[iSet] = addInfo->descriptorSetCount;
-			*outDescriptorSet = (s32)iSet;
+			*descriptorSet = (s32)iSet;
 			break;
 		}
 	}
 }
 
-b8 valheim_createDescriptors(valheim_VulkanContext *context, valheim_DescriptorSetCreateInfo *createInfo, valheim_VulkanDescriptorSet *outDescriptorSet) {
+b8 valheim_initDescriptors(valheim_VulkanContext *context, valheim_DescriptorSetCreateInfo *createInfo, valheim_VulkanDescriptorSet *descriptorSet) {
 	VkDescriptorPoolSize descriptorPoolSizes[10] = {0};
 	for (u32 iType = 0; iType < createInfo->descriptorTypeCount; ++iType) {
 		descriptorPoolSizes[iType].type = createInfo->descriptorTypes[iType];
@@ -122,6 +117,6 @@ b8 valheim_createDescriptors(valheim_VulkanContext *context, valheim_DescriptorS
 	addInfo.descriptorSets = descriptorSets;
 	addInfo.descriptorSetCount = context->imageCount;
 
-	valheim_addDescriptorSet(context, &addInfo, outDescriptorSet);
+	valheim_addDescriptorSet(context, &addInfo, descriptorSet);
 	return true;
 }

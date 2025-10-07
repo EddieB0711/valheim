@@ -20,7 +20,7 @@ void valheim_deinitCommandPool(valheim_VulkanContext *context) {
 	}
 }
 
-b8 valheim_allocateCommandBuffers(valheim_VulkanContext *context) {
+b8 valheim_acquireCommandBuffers(valheim_VulkanContext *context) {
 	VkCommandBufferAllocateInfo allocateInfo = {0};
 	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocateInfo.commandPool = context->commandPool;
@@ -38,14 +38,14 @@ void valheim_releaseCommandBuffers(valheim_VulkanContext *context) {
 	vkFreeCommandBuffers(context->device, context->commandPool, context->imageCount, context->commandBuffers.data);
 }
 
-b8 valheim_beginTransientCommand(valheim_VulkanContext *context, VkCommandBuffer *out_command_buffer) {
+b8 valheim_beginTransientCommand(valheim_VulkanContext *context, VkCommandBuffer *commandBuffer) {
 	VkCommandBufferAllocateInfo allocateInfo = {0};
 	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocateInfo.commandPool = context->commandPool;
 	allocateInfo.commandBufferCount = 1;
 
-	VkResult result = vkAllocateCommandBuffers(context->device, &allocateInfo, out_command_buffer);
+	VkResult result = vkAllocateCommandBuffers(context->device, &allocateInfo, commandBuffer);
 	if (result != VK_SUCCESS) {
 		return false;
 	}
@@ -54,7 +54,7 @@ b8 valheim_beginTransientCommand(valheim_VulkanContext *context, VkCommandBuffer
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-	result = vkBeginCommandBuffer(*out_command_buffer, &beginInfo);
+	result = vkBeginCommandBuffer(*commandBuffer, &beginInfo);
 	return result == VK_SUCCESS;
 }
 
@@ -87,11 +87,11 @@ void valheim_endCommandBuffer(valheim_VulkanContext *context, VkCommandBuffer co
 	vkEndCommandBuffer(commandBuffer);
 }
 
-void ValheimCopyBufferToImage(valheim_VulkanContext *context, valheim_BufferImageCopy *ImageCopy, valheim_VulkanBuffer buffer, VkImage image) {
+void ValheimCopyBufferToImage(valheim_VulkanContext *context, valheim_BufferImageCopy *imageCopy, valheim_VulkanBuffer buffer, VkImage image) {
 	VkBufferImageCopy region = {0};
-	region.imageExtent = (VkExtent3D){ImageCopy->width, ImageCopy->height, 1};
+	region.imageExtent = (VkExtent3D){imageCopy->width, imageCopy->height, 1};
 	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	region.imageSubresource.layerCount = 1;
 
-	vkCmdCopyBufferToImage(ImageCopy->commandBuffer, context->bufferManager.buffers.data[buffer], image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	vkCmdCopyBufferToImage(imageCopy->commandBuffer, context->bufferManager.buffers.data[buffer], image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 }

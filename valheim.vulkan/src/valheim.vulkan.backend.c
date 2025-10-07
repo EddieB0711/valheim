@@ -218,7 +218,6 @@ b8 valheim_initContext(valheim_Allocator *allocator, valheim_VulkanContext *cont
 	valheim_initQueue(sizeof(valheim_VulkanJob), allocator, &context->lowPriority);
 
 	valheim_initMap(context->pipelineHandles, 1024, valheim_createHash, allocator);
-	valheim_initMap(context->pipelineHandles, 1024, valheim_createHash, allocator);
 
 	VALIDATE((context->window = glfwCreateWindow(1280, 720, "Graph Visualizer", NULL, NULL)));
 	glfwSetWindowUserPointer(context->window, context);
@@ -252,7 +251,7 @@ b8 valheim_initContext(valheim_Allocator *allocator, valheim_VulkanContext *cont
 	VALIDATE(valheim_initSwapChain(context));
 	VALIDATE(valheim_initSyncObjects(context, allocator));
 	VALIDATE(valheim_initCommandPool(context));
-	VALIDATE(valheim_allocateCommandBuffers(context));
+	VALIDATE(valheim_acquireCommandBuffers(context));
 	VALIDATE(valheim_initDepthTexture(context));
 	VALIDATE(valheim_initColorTexture(context));
 	//VALIDATE(valheim_initUniformBuffer(context, sizeof(valheim_VulkanFrameData), &context->frameDataBuffer));
@@ -260,7 +259,7 @@ b8 valheim_initContext(valheim_Allocator *allocator, valheim_VulkanContext *cont
 	VALIDATE(valheim_initVulkanScene(context, allocator, &context->worldScene));
 
 	valheim_VulkanScene *testScene;
-	VALIDATE(valheim_loadGltfFile(context, "assets/DamagedHelmet.gltf", allocator, &testScene));
+	VALIDATE(valheim_loadGltfFile(context, "assets/terrain.gltf", allocator, &testScene));
 	valheim_arrayAppend(context->worldScene->children, testScene);
 
 #undef VALIDATE

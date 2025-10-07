@@ -23,7 +23,9 @@ void valheim_deinitPipelineManager(valheim_VulkanContext *context);
 
 u32 valheim_addPipeline(valheim_VulkanContext *context, valheim_PipelineAddInfo *addInfo);
 
-b8 valheim_createPipeline(valheim_VulkanContext *context, valheim_PipelineCreateInfo *createInfo, valheim_VulkanPipeline *outPipeline);
+b8 valheim_initPipelineCache(valheim_VulkanContext *context);
+
+b8 valheim_initPipeline(valheim_VulkanContext *context, valheim_PipelineCreateInfo *createInfo, valheim_VulkanPipeline *outPipeline);
 
 b8 valheim_loadPipelines(valheim_VulkanContext *context);
 

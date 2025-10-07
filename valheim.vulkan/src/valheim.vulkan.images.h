@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/10/2025.
-//
-
 #ifndef VALHEIM_VALHEIM_VULKAN_IMAGES_H
 #define VALHEIM_VALHEIM_VULKAN_IMAGES_H
 
@@ -23,12 +19,12 @@ VkFormat valheim_getSupportedFormats(valheim_VulkanContext *context, VkFormat *f
 
 VkFormat valheim_getDepthFormat(valheim_VulkanContext *context);
 
-b8 valheim_createImage(valheim_VulkanContext *context, VkFormat format, VkImageUsageFlags usage, VkImageTiling tiling, VkSampleCountFlagBits samples, u32 width, u32 height, VkImage *outImage);
+b8 valheim_createImage(valheim_VulkanContext *context, VkFormat format, VkImageUsageFlags usage, VkImageTiling tiling, VkSampleCountFlagBits samples, u32 width, u32 height, VkImage *image);
 
-b8 valheim_createImageView(valheim_VulkanContext *context, VkFormat format, VkImage image, VkImageAspectFlags aspect, VkImageView *outView);
+b8 valheim_createImageView(valheim_VulkanContext *context, VkFormat format, VkImage image, VkImageAspectFlags aspect, VkImageView *view);
 
-b8 valheim_allocateImageMemory(valheim_VulkanContext *context, VkImage image, VkDeviceMemory *outMemory);
+b8 valheim_allocateImageMemory(valheim_VulkanContext *context, VkImage image, VkDeviceMemory *memory);
 
-b8 valheim_createSampler(valheim_VulkanContext *context, VkSampler *outSampler);
+b8 valheim_createSampler(valheim_VulkanContext *context, VkSampler *sampler);
 
 #endif //VALHEIM_VALHEIM_VULKAN_IMAGES_H

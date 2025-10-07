@@ -153,7 +153,7 @@ VkSampleCountFlagBits valheim_getMaxSampleCount(valheim_VulkanContext *context) 
 	VkPhysicalDeviceProperties properties = {0};
 	vkGetPhysicalDeviceProperties(context->physicalDevice, &properties);
 
-	VkSampleCountFlags counts = properties.limits.framebufferColorSampleCounts & properties.limits.framebufferDepthSampleCounts;
+	const VkSampleCountFlags counts = properties.limits.framebufferColorSampleCounts & properties.limits.framebufferDepthSampleCounts;
 
 	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
 	if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }

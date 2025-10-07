@@ -8,7 +8,6 @@
 
 #include <valheim.arena.allocator.h>
 #include <valheim.filesystem.h>
-#include <valheim.hashing.h>
 #include <valheim.strings.h>
 
 #include <spirv-reflect/spirv_reflect.h>
@@ -36,7 +35,7 @@ static u64 valheim_translateFormatToStride(VkFormat format) {
 	return 0;
 }
 
-static b8 valheim_createShader(valheim_VulkanContext *context, const char *file, valheim_Allocator *allocator, valheim_ShaderStageProperties *properties, VkShaderModule *outModule) {
+static b8 valheim_initShader(valheim_VulkanContext *context, const char *file, valheim_Allocator *allocator, valheim_ShaderStageProperties *properties, VkShaderModule *outModule) {
 	u8 memory[VALHEIM_KIBIBYTE(10)] = {0};
 
 	valheim_ArenaAllocator arena = {0};
@@ -187,23 +186,29 @@ u32 valheim_addPipeline(valheim_VulkanContext *context, valheim_PipelineAddInfo 
 	return 0xFFFFFFF;
 }
 
-b8 valheim_createPipeline(valheim_VulkanContext *context, valheim_PipelineCreateInfo *createInfo, valheim_VulkanPipeline *outPipeline) {
+b8 valheim_initPipelineCache(valheim_VulkanContext *context) {
+	VkPipelineCacheCreateInfo createInfo = {0};
+	createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+
+	VkPipelineCache pipelineCache;
+
+	const VkResult result = vkCreatePipelineCache(context->device, &createInfo, NULL, &pipelineCache);
+	return result == VK_SUCCESS;
+}
+
+b8 valheim_initPipeline(valheim_VulkanContext *context, valheim_PipelineCreateInfo *createInfo, valheim_VulkanPipeline *outPipeline) {
 	u8 memory[VALHEIM_KIBIBYTE(10)] = {0};
 
 	valheim_ArenaAllocator arena;
 	valheim_initArenaAllocator(memory, VALHEIM_ARRAY_LEN(memory), &arena);
 
-	valheim_Allocator tempAllocator = {
-		.allocate = valheim_arenaAllocatorAllocate,
-		.free = valheim_arenaAllocatorFree,
-		.reallocate = valheim_arenaAllocatorReallocate,
-		.userData = &arena,
-	};
+	valheim_Allocator tempAllocator = {0};
+	valheim_initAllocatorFromArena(&arena, &tempAllocator);
 
 	valheim_ShaderStageProperties properties = {0};
 
 	VkShaderModule module;
-	if (!valheim_createShader(context, createInfo->shaderFile, &tempAllocator, &properties, &module)) {
+	if (!valheim_initShader(context, createInfo->shaderFile, &tempAllocator, &properties, &module)) {
 		return false;
 	}
 
@@ -234,7 +239,7 @@ b8 valheim_createPipeline(valheim_VulkanContext *context, valheim_PipelineCreate
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.setLayoutCount = 1;
 	pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
-	pipelineLayoutCreateInfo.pushConstantRangeCount = properties.pushConstants.length;
+	pipelineLayoutCreateInfo.pushConstantRangeCount = (u32)properties.pushConstants.length;
 	pipelineLayoutCreateInfo.pPushConstantRanges = properties.pushConstants.data;
 
 	VkPipelineLayout pipelineLayout;
@@ -365,7 +370,7 @@ b8 valheim_loadPipelines(valheim_VulkanContext *context) {
 	for (u32 iFile = 0; iFile < VALHEIM_ARRAY_LEN(files); ++iFile) {
 		valheim_PipelineCreateInfo pipelineInfo = {.shaderFile = files[iFile]};
 		valheim_VulkanPipeline pipeline;
-		if (!valheim_createPipeline(context, &pipelineInfo, &pipeline)) {
+		if (!valheim_initPipeline(context, &pipelineInfo, &pipeline)) {
 			return false;
 		}
 

@@ -49,7 +49,7 @@ VkFormat valheim_getSupportedFormats(valheim_VulkanContext *context, VkFormat *f
 		vkGetPhysicalDeviceFormatProperties(context->physicalDevice, formats[iFormat], &properties);
 
 		if ((tiling == VK_IMAGE_TILING_LINEAR && ((properties.linearTilingFeatures & features) == features)) ||
-				(tiling == VK_IMAGE_TILING_OPTIMAL && ((properties.linearTilingFeatures & features) == features))) {
+			(tiling == VK_IMAGE_TILING_OPTIMAL && ((properties.linearTilingFeatures & features) == features))) {
 			return formats[iFormat];
 		}
 	}
@@ -67,7 +67,7 @@ VkFormat valheim_getDepthFormat(valheim_VulkanContext *context) {
 	return valheim_getSupportedFormats(context, formats, VALHEIM_ARRAY_LEN(formats), VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 
-b8 valheim_createImage(valheim_VulkanContext *context, VkFormat format, VkImageUsageFlags usage, VkImageTiling tiling, VkSampleCountFlagBits samples, u32 width, u32 height, VkImage *outImage) {
+b8 valheim_createImage(valheim_VulkanContext *context, VkFormat format, VkImageUsageFlags usage, VkImageTiling tiling, VkSampleCountFlagBits samples, u32 width, u32 height, VkImage *image) {
 	VkImageCreateInfo createInfo = {0};
 	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	createInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -81,11 +81,11 @@ b8 valheim_createImage(valheim_VulkanContext *context, VkFormat format, VkImageU
 	createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-	const VkResult result = vkCreateImage(context->device, &createInfo, NULL, outImage);
+	const VkResult result = vkCreateImage(context->device, &createInfo, NULL, image);
 	return result == VK_SUCCESS;
 }
 
-b8 valheim_createImageView(valheim_VulkanContext *context, VkFormat format, VkImage image, VkImageAspectFlags aspect, VkImageView *outView) {
+b8 valheim_createImageView(valheim_VulkanContext *context, VkFormat format, VkImage image, VkImageAspectFlags aspect, VkImageView *view) {
 	VkImageViewCreateInfo createInfo = {0};
 	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	createInfo.image = image;
@@ -99,11 +99,11 @@ b8 valheim_createImageView(valheim_VulkanContext *context, VkFormat format, VkIm
 		.layerCount = 1,
 	};
 
-	const VkResult result = vkCreateImageView(context->device, &createInfo, NULL, outView);
+	const VkResult result = vkCreateImageView(context->device, &createInfo, NULL, view);
 	return result == VK_SUCCESS;
 }
 
-b8 valheim_allocateImageMemory(valheim_VulkanContext *context, VkImage image, VkDeviceMemory *outMemory) {
+b8 valheim_allocateImageMemory(valheim_VulkanContext *context, VkImage image, VkDeviceMemory *memory) {
 	VkMemoryRequirements requirements;
 	vkGetImageMemoryRequirements(context->device, image, &requirements);
 
@@ -112,12 +112,12 @@ b8 valheim_allocateImageMemory(valheim_VulkanContext *context, VkImage image, Vk
 	allocateInfo.allocationSize = requirements.size;
 	allocateInfo.memoryTypeIndex = valheim_getMemoryTypeIndex(context, requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	VkResult result = vkAllocateMemory(context->device, &allocateInfo, NULL, outMemory);
+	VkResult result = vkAllocateMemory(context->device, &allocateInfo, NULL, memory);
 	if (result != VK_SUCCESS) {
 		return false;
 	}
 
-	result = vkBindImageMemory(context->device, image, *outMemory, 0);
+	result = vkBindImageMemory(context->device, image, *memory, 0);
 	if (result != VK_SUCCESS) {
 		return false;
 	}
@@ -125,7 +125,7 @@ b8 valheim_allocateImageMemory(valheim_VulkanContext *context, VkImage image, Vk
 	return true;
 }
 
-b8 valheim_createSampler(valheim_VulkanContext *context, VkSampler *outSampler) {
+b8 valheim_createSampler(valheim_VulkanContext *context, VkSampler *sampler) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(context->physicalDevice, &properties);
 
@@ -138,6 +138,6 @@ b8 valheim_createSampler(valheim_VulkanContext *context, VkSampler *outSampler) 
 	createInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 	createInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 
-	const VkResult result = vkCreateSampler(context->device, &createInfo, NULL, outSampler);
+	const VkResult result = vkCreateSampler(context->device, &createInfo, NULL, sampler);
 	return result == VK_SUCCESS;
 }

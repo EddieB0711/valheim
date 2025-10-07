@@ -148,7 +148,7 @@ b8 valheim_createTexture(valheim_VulkanContext *context, const char *filename, v
 	const VkDeviceSize size = width * height * 4;
 
 	valheim_VulkanBuffer stagingBuffer;
-	if (!valheim_createStagingBuffer(context, data, size, &stagingBuffer)) {
+	if (!valheim_initStagingBuffer(context, data, size, &stagingBuffer)) {
 		stbi_image_free(data);
 		return false;
 	}
@@ -156,14 +156,14 @@ b8 valheim_createTexture(valheim_VulkanContext *context, const char *filename, v
 	VkImage image;
 	if (!valheim_createImage(context, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, VK_SAMPLE_COUNT_1_BIT, width, height, &image)) {
 		stbi_image_free(data);
-		valheim_destroyBuffer(context, stagingBuffer);
+		valheim_deinitBuffer(context, stagingBuffer);
 		return false;
 	}
 
 	VkDeviceMemory memory;
 	if (!valheim_allocateImageMemory(context, image, &memory)) {
 		stbi_image_free(data);
-		valheim_destroyBuffer(context, stagingBuffer);
+		valheim_deinitBuffer(context, stagingBuffer);
 		return false;
 	}
 
@@ -202,19 +202,19 @@ b8 valheim_createTexture(valheim_VulkanContext *context, const char *filename, v
 	);
 
 	valheim_endTransientCommand(context, commandBuffer);
-	valheim_destroyBuffer(context, stagingBuffer);
+	valheim_deinitBuffer(context, stagingBuffer);
 
 	VkImageView view;
 	if (!valheim_createImageView(context, VK_FORMAT_R8G8B8A8_SRGB, image, VK_IMAGE_ASPECT_COLOR_BIT, &view)) {
 		stbi_image_free(data);
-		valheim_destroyBuffer(context, stagingBuffer);
+		valheim_deinitBuffer(context, stagingBuffer);
 		return false;
 	}
 
 	VkSampler sampler;
 	if (!valheim_createSampler(context, &sampler)) {
 		stbi_image_free(data);
-		valheim_destroyBuffer(context, stagingBuffer);
+		valheim_deinitBuffer(context, stagingBuffer);
 		return false;
 	}
 
