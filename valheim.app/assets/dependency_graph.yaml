@@ -1,0 +1,45 @@
+dependencies:
+    - name: "create-instance"
+      id: 1
+      in_degrees: []
+      out_degrees: [2]
+    - name: "create-surface"
+      id: 2
+      in_degrees: [1]
+      out_degrees: [3]
+    - name: "select-physical-device"
+      id: 3
+      in_degrees: [2]
+      out_degrees: [4]
+    - name: "create-device"
+      id: 4
+      in_degrees: [3]
+      out_degrees: [5,6,8,9,10,11]
+    - name: "create-swapchain"
+      id: 5
+      in_degrees: [4]
+      out_degrees: []
+    - name: "create-command-pool"
+      id: 6
+      in_degrees: [4]
+      out_degrees: [7]
+    - name: "create-command-buffers"
+      id: 7
+      in_degrees: [6]
+      out_degrees: []
+    - name: "create-depth-texture"
+      id: 8
+      in_degrees: [4]
+      out_degrees: []
+    - name: "create-color-texture"
+      id: 9
+      in_degrees: [4]
+      out_degrees: []
+    - name: "create-uniform-buffer"
+      id: 10
+      in_degrees: [4]
+      out_degrees: []
+    - name: "load-pipelines"
+      id: 11
+      in_degrees: [4]
+      out_degrees: []

@@ -1,0 +1,17 @@
+pipelines:
+  enabled:
+    - name: "static-mesh"
+      files: 
+        - "BuiltIn.StaticTexturedMesh.slang.spv"
+      stages:
+        - "vertex"
+        - "fragment"
+      entries:
+        - "vertMain"
+        - "fragMain"
+      attributes:
+        - format: "vec3"
+          binding: 0
+        - format: "vec2"
+          binding: 0
+      

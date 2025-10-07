@@ -1,0 +1,15 @@
+pipelines:
+  enabled:
+    - name: "static-mesh"
+      attributes:
+        - location: 0
+          binding: 0
+          offset: 0
+          type: "VEC3"
+      bindings:
+        - binding: 0
+          offset: 0
+          input_rate: "VERTEX"
+      files:
+        - "assets/shaders/BuiltIn.StaticMesh.frag.glsl.spv"
+        - "assets/shaders/BuiltIn.StaticMesh.vert.glsl.spv"

@@ -1,0 +1,15 @@
+INCLUDE(../odin.cmake/odin.cmake)
+
+SET(PROJECT_NAME valheim.app)
+
+ODIN_SETUP_EXE(${PROJECT_NAME})
+ODIN_LINK_CORE(${PROJECT_NAME})
+ODIN_LINK_ASSIMP(${PROJECT_NAME})
+
+TARGET_LINK_LIBRARIES(
+	${PROJECT_NAME}
+	PRIVATE
+    valheim.core
+    valheim.vulkan
+)
+
