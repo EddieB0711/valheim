@@ -17,12 +17,13 @@
 #include <valheim.queue.h>
 
 #define VALHEIM_STATIC_TEXTURED_MESH "StaticTexturedMesh"
+#define VALHEIM_IMGUI_PIPELINE "ImGuiPipeline"
 
 struct valheim_VulkanContext;
 struct valheim_VulkanScene;
 
-typedef b8(*valheim_RunJob)(void *);
-typedef void (*valheim_RenderScene)(struct valheim_VulkanContext *, struct valheim_VulkanScene *);
+typedef b8( *valheim_RunJob )( void * );
+typedef void ( *valheim_RenderScene )( struct valheim_VulkanContext *, struct valheim_VulkanScene * );
 
 typedef s32 valheim_Handle;
 typedef valheim_Handle valheim_VulkanBuffer;
@@ -37,33 +38,33 @@ typedef struct valheim_VulkanFrameData {
 } valheim_VulkanFrameData;
 
 typedef struct valheim_VulkanBufferManager {
-	valheim_Array(VkBuffer) buffers;
-	valheim_Array(VkDeviceMemory) bufferMemory;
-	valheim_Array(VkDeviceSize) bufferSizes;
-	valheim_Array(b8) buffersInUse;
+	valheim_Array( VkBuffer ) buffers;
+	valheim_Array( VkDeviceMemory ) bufferMemory;
+	valheim_Array( VkDeviceSize ) bufferSizes;
+	valheim_Array( b8 ) buffersInUse;
 } valheim_VulkanBufferManager;
 
 typedef struct valheim_VulkanTextureManager {
-	valheim_Array(VkImage) images;
-	valheim_Array(VkImageView) imageViews;
-	valheim_Array(VkSampler) samplers;
-	valheim_Array(VkDeviceMemory) imageMemory;
-	valheim_Array(VkDeviceSize) imageSizes;
-	valheim_Array(b8) freeList;
+	valheim_Array( VkImage ) images;
+	valheim_Array( VkImageView ) imageViews;
+	valheim_Array( VkSampler ) samplers;
+	valheim_Array( VkDeviceMemory ) imageMemory;
+	valheim_Array( VkDeviceSize ) imageSizes;
+	valheim_Array( b8 ) freeList;
 } valheim_VulkanTextureManager;
 
 typedef struct valheim_VulkanPipelineManager {
-	valheim_Array(VkPipelineLayout) pipelineLayouts;
-	valheim_Array(VkPipeline) pipelines;
-	valheim_Array(VkDescriptorSetLayout) destriptorSetLayouts;
-	valheim_Array(b8) freeList;
+	valheim_Array( VkPipelineLayout ) pipelineLayouts;
+	valheim_Array( VkPipeline ) pipelines;
+	valheim_Array( VkDescriptorSetLayout ) destriptorSetLayouts;
+	valheim_Array( b8 ) freeList;
 } valheim_VulkanPipelineManager;
 
 typedef struct valheim_DescriptorSetManager {
-	valheim_Array(VkDescriptorPool) descriptorPools;
-	valheim_Array(VkDescriptorSet *) descriptorSets;
-	valheim_Array(u32) descriptorSetCounts;
-	valheim_Array(b8) freeList;
+	valheim_Array( VkDescriptorPool ) descriptorPools;
+	valheim_Array( VkDescriptorSet * ) descriptorSets;
+	valheim_Array( u32 ) descriptorSetCounts;
+	valheim_Array( b8 ) freeList;
 } valheim_DescriptorSetManager;
 
 typedef struct valheim_VulkanMaterial {
@@ -90,7 +91,7 @@ typedef struct valheim_VulkanScene {
 	mat4 localTransform;
 	mat4 globalTransform;
 
-	valheim_Array(struct valheim_VulkanScene *) children;
+	valheim_Array( struct valheim_VulkanScene * ) children;
 } valheim_VulkanScene;
 
 typedef struct valheim_VulkanCamera {
@@ -109,8 +110,13 @@ typedef struct valheim_VulkanJob {
 } valheim_VulkanJob;
 
 typedef struct valheim_VulkanJobManager {
-	valheim_Array(valheim_VulkanJob) jobs;
+	valheim_Array( valheim_VulkanJob ) jobs;
 } valheim_VulkanJobManager;
+
+typedef struct valheim_UiInput {
+	b8 shouldShowUI;
+	b8 shouldClose;
+} valheim_UiInput;
 
 typedef struct valheim_VulkanContext {
 	GLFWwindow *window;
@@ -127,15 +133,15 @@ typedef struct valheim_VulkanContext {
 	VkSwapchainKHR swapChain;
 	VkCommandPool commandPool;
 
-	valheim_Array(VkImage) swapChainImages;
-	valheim_Array(VkImageView) swapChainImageViews;
-	valheim_Array(VkCommandBuffer) commandBuffers;
-	valheim_Array(VkSemaphore) imageAvailableSemaphores;
-	valheim_Array(VkSemaphore) renderFinishedSemaphores;
-	valheim_Array(VkFence) inFlightFences;
-	valheim_Array(VkFence) imagesInFlight;
+	valheim_Array( VkImage ) swapChainImages;
+	valheim_Array( VkImageView ) swapChainImageViews;
+	valheim_Array( VkCommandBuffer ) commandBuffers;
+	valheim_Array( VkSemaphore ) imageAvailableSemaphores;
+	valheim_Array( VkSemaphore ) renderFinishedSemaphores;
+	valheim_Array( VkFence ) inFlightFences;
+	valheim_Array( VkFence ) imagesInFlight;
 
-	valheim_Map(const char *, valheim_VulkanPipeline) pipelineHandles;
+	valheim_Map( const char *, valheim_VulkanPipeline ) pipelineHandles;
 
 	valheim_VulkanCamera camera;
 	valheim_VulkanBufferManager bufferManager;
@@ -145,7 +151,7 @@ typedef struct valheim_VulkanContext {
 	valheim_VulkanScene *worldScene;
 	valheim_VulkanBuffer frameDataBuffer;
 
-	valheim_Allocator *allocator;
+	valheim_UiInput uiInput;
 
 	u32 imageCount;
 	u32 currentImage;

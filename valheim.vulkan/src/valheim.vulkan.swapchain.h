@@ -7,10 +7,10 @@
 
 #include "valheim.vulkan.types.h"
 
-b8 valheim_initSwapChain(valheim_VulkanContext *context);
+b8 valheim_initSwapChain( valheim_VulkanContext *context, valheim_Allocator *allocator );
 
-void valheim_deinitSwapChain(valheim_VulkanContext *context);
+void valheim_deinitSwapChain( valheim_VulkanContext *context, valheim_Allocator *allocator );
 
-b8 valheim_recreateSwapChain(valheim_VulkanContext *context);
+b8 valheim_recreateSwapChain( valheim_VulkanContext *context, valheim_Allocator *allocator );
 
 #endif //VALHEIM_VALHEIM_VULKAN_SWAPCHAIN_H

@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/9/2025.
-//
-
 #include "valheim.allocator.h"
 #include "valheim.memory.h"
 

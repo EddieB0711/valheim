@@ -7,6 +7,6 @@
 
 #include "valheim.defines.h"
 
-VALHEIM_API u64 valheim_createHash(const u8* data, u64 dataSize, u64 seed);
+VALHEIM_API u64 valheim_hash(const u8* data, u64 dataSize, u64 seed);
 
 #endif //VALHEIM_VALHEIM_HASHING_H

@@ -31,6 +31,6 @@ typedef struct valheim_Fiber {
 	valheim_FiberEntry entry;
 } valheim_Fiber;
 
-VALHEIM_API b8 valheim_createFiber(void *stack, u64 stackSize, valheim_FiberEntry entry, void *args, valheim_Fiber *outFiber);
+VALHEIM_API b8 valheim_createFiber(void *stack, u64 stackSize, valheim_FiberEntry entry, void *args, valheim_Fiber *fiber);
 
 //extern "C" void valheim_switchContext(valheim_FiberContext* OldContext, valheim_FiberContext* NewContext);

@@ -4,7 +4,7 @@
 
 #include "valheim.hashing.h"
 
-u64 valheim_createHash(const u8 *data, u64 dataSize, u64 seed) {
+u64 valheim_hash(const u8 *data, u64 dataSize, u64 seed) {
 	const u64 m = 0xc6a4a7935bd1e995ULL;
 	const int r = 47;
 

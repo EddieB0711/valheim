@@ -7,6 +7,6 @@
 
 #include "valheim.vulkan.types.h"
 
-b8 valheim_initVulkanScene(valheim_VulkanContext *context, valheim_Allocator *allocator, valheim_VulkanScene **outScene);
+b8 valheim_initVulkanScene( valheim_VulkanContext *context, valheim_Allocator *allocator, valheim_VulkanScene **outScene );
 
 #endif //VALHEIM_VALHEIM_VULKAN_SCENES_H

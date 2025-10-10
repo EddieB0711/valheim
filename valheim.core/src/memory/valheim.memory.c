@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/9/2025.
-//
-
 #include "valheim.memory.h"
 
 #include <stdlib.h>
@@ -53,11 +49,8 @@ void *valheim_memoryReallocate(valheim_Memory *memory, void *ptr, u64 size) {
 
 	const u64 alignMask = header->alignMask;
 	const u64 totalSize = sizeof(valheim_MemoryHeader) + size + alignMask & ~alignMask;
-
-	valheim_acquireSpinLock(&memory->spinLock);
-	memory->totalAllocated -= header->size;
-	memory->remainingAllocated -= header->size;
-	valheim_releaseSpinLock(&memory->spinLock);
+	const u64 headerSize = header->size;
+	const s64 delta = totalSize - headerSize;
 
 	valheim_MemoryHeader *newHeader = realloc(header, totalSize);
 
@@ -68,8 +61,8 @@ void *valheim_memoryReallocate(valheim_Memory *memory, void *ptr, u64 size) {
 	newHeader->size = totalSize;
 
 	valheim_acquireSpinLock(&memory->spinLock);
-	memory->totalAllocated += totalSize;
-	memory->remainingAllocated += totalSize;
+	memory->totalAllocated += delta;
+	memory->remainingAllocated += delta;
 	valheim_releaseSpinLock(&memory->spinLock);
 
 	return newHeader + 1;
