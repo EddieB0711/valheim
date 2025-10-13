@@ -67,10 +67,10 @@ static b8 valheim_createBuffer( valheim_VulkanContext *context, const void *data
 }
 
 void valheim_initBufferManager( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
-	valheim_initArray( context->bufferManager.buffers, 1024, allocator );
-	valheim_initArray( context->bufferManager.bufferMemory, 1024, allocator );
-	valheim_initArray( context->bufferManager.bufferSizes, 1024, allocator );
-	valheim_initArray( context->bufferManager.buffersInUse, 1024, allocator );
+	valheim_initIndexableArray( context->bufferManager.buffers, 1024, allocator );
+	valheim_initIndexableArray( context->bufferManager.bufferMemory, 1024, allocator );
+	valheim_initIndexableArray( context->bufferManager.bufferSizes, 1024, allocator );
+	valheim_initIndexableArray( context->bufferManager.buffersInUse, 1024, allocator );
 
 	context->bufferManager.buffers.length = 1024;
 	context->bufferManager.bufferMemory.length = 1024;
@@ -90,10 +90,10 @@ void valheim_deinitBufferManager( valheim_VulkanContext *context, valheim_Alloca
 		}
 	}
 
-	valheim_deinitArray( context->bufferManager.buffers );
-	valheim_deinitArray( context->bufferManager.bufferMemory );
-	valheim_deinitArray( context->bufferManager.buffersInUse );
-	valheim_deinitArray( context->bufferManager.bufferSizes );
+	valheim_deinitIndexableArray( context->bufferManager.buffers );
+	valheim_deinitIndexableArray( context->bufferManager.bufferMemory );
+	valheim_deinitIndexableArray( context->bufferManager.buffersInUse );
+	valheim_deinitIndexableArray( context->bufferManager.bufferSizes );
 }
 
 u32 valheim_addBuffer( valheim_VulkanContext *context, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize size ) {

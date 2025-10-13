@@ -59,15 +59,23 @@ static void valheim_copyAssimpMat4ToMat4( const struct aiMatrix4x4 *in, mat4 out
 	out[ 3 ][ 3 ] = in->d4;
 }
 
-static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiScene *scene, const struct aiNode *node, valheim_VulkanScene *vulkanScene, valheim_Allocator *allocator ) {
-	valheim_copyAssimpMat4ToMat4( &node->mTransformation, vulkanScene->localTransform );
+static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiScene *scene, const struct aiNode *node, valheim_VulkanScene *vulkanScene, s32 parent, s32 depth, valheim_Allocator *allocator ) {
+	s32 newNodeId = valheim_vulkanSceneAddNode( vulkanScene, parent, depth, allocator );
+
+	mat4 transform;
+	valheim_copyAssimpMat4ToMat4( &node->mTransformation, transform );
+
+	valheim_arrayAppend( &vulkanScene->localTransforms, transform, allocator );
+	valheim_arrayAppend( &vulkanScene->globalTransforms, transform, allocator );
 
 	for ( u32 iMesh = 0; iMesh < node->mNumMeshes; ++iMesh ) {
+		s32 subNodeId = valheim_vulkanSceneAddNode( vulkanScene, newNodeId, depth + 1, allocator );
+
 		const struct aiMesh *mesh = scene->mMeshes[ node->mMeshes[ iMesh ] ];
 		const struct aiMaterial *material = scene->mMaterials[ mesh->mMaterialIndex ];
 
-		valheim_Array( valheim_Vertex ) vertices;
-		valheim_initArray( vertices, mesh->mNumVertices, allocator );
+		valheim_IndexableArray( valheim_Vertex ) vertices;
+		valheim_initIndexableArray( vertices, mesh->mNumVertices, allocator );
 
 		for ( u32 i = 0; i != mesh->mNumVertices; ++i ) {
 			const struct aiVector3D v = mesh->mVertices[ i ];
@@ -81,20 +89,20 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 			valheim_translateVector3DToVec2( &t, vertex.uv );
 			valheim_translateVector3DToVec3( &normal, vertex.normal );
 
-			valheim_arrayAppend( vertices, vertex );
+			valheim_indexableArrayAppend( vertices, vertex );
 		}
 
-		valheim_Array( u32 ) indices;
-		valheim_initArray( indices, mesh->mNumFaces, allocator );
+		valheim_IndexableArray( u32 ) indices;
+		valheim_initIndexableArray( indices, mesh->mNumFaces, allocator );
 
 		for ( u32 i = 0; i != mesh->mNumFaces; ++i ) {
 			for ( u32 j = 0; j != 3; ++j ) {
-				valheim_arrayAppend( indices, mesh->mFaces[ i ].mIndices[ j ] );
+				valheim_indexableArrayAppend( indices, mesh->mFaces[ i ].mIndices[ j ] );
 			}
 		}
 
-		valheim_Array( u32 ) remap;
-		valheim_initArray( remap, indices.length, allocator );
+		valheim_IndexableArray( u32 ) remap;
+		valheim_initIndexableArray( remap, indices.length, allocator );
 
 		meshopt_generateVertexRemap( remap.data, indices.data, indices.length, vertices.data, vertices.length, sizeof( *vertices.data ) );
 		meshopt_remapIndexBuffer( indices.data, indices.data, indices.length, remap.data );
@@ -117,16 +125,16 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 		valheim_VulkanTexture texture;
 		valheim_initTexture( context, baseColorFullPath, &texture );
 
-		vulkanScene->mesh.indexBuffer = indexBuffer;
-		vulkanScene->mesh.vertexBuffer = vertexBuffer;
-		vulkanScene->mesh.indexCount = ( u32 ) indices.length;
-		vulkanScene->mesh.material.texture = texture;
-
-		valheim_mapFind( context->pipelineHandles, VALHEIM_STATIC_TEXTURED_MESH, valheim_stringLength( VALHEIM_STATIC_TEXTURED_MESH ), vulkanScene->pipeline );
+		valheim_VulkanMesh vulkanMesh = { 0 };
+		vulkanMesh.indexBuffer = indexBuffer;
+		vulkanMesh.vertexBuffer = vertexBuffer;
+		vulkanMesh.indexCount = ( u32 ) indices.length;
+		vulkanMesh.material.texture = texture;
+		valheim_mapFind( &context->pipelineHandles, VALHEIM_STATIC_TEXTURED_MESH, valheim_stringLength( VALHEIM_STATIC_TEXTURED_MESH ), &vulkanMesh.pipelineHandle );
 
 		VkDescriptorImageInfo imageInfo = { 0 };
-		imageInfo.sampler = context->textureManager.samplers.data[ vulkanScene->mesh.material.texture ];
-		imageInfo.imageView = context->textureManager.imageViews.data[ vulkanScene->mesh.material.texture ];
+		imageInfo.sampler = context->textureManager.samplers.data[ vulkanMesh.material.texture ];
+		imageInfo.imageView = context->textureManager.imageViews.data[ vulkanMesh.material.texture ];
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		valheim_DescriptorImageInfo descriptorImageInfo = { 0 };
@@ -138,7 +146,7 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 
 		VkDescriptorSetLayout descriptorSetLayouts[ 10 ] = { 0 };
 		for ( u32 iImage = 0; iImage < context->imageCount; ++iImage ) {
-			descriptorSetLayouts[ iImage ] = context->pipelineManager.destriptorSetLayouts.data[ vulkanScene->pipeline ];
+			descriptorSetLayouts[ iImage ] = context->pipelineManager.destriptorSetLayouts.data[ vulkanMesh.pipelineHandle ];
 		}
 
 		valheim_DescriptorSetCreateInfo descriptorCreateInfo = { 0 };
@@ -148,11 +156,12 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 		descriptorCreateInfo.descriptorTypeCount = VALHEIM_ARRAY_LEN( descriptorTypes );
 		descriptorCreateInfo.destriptorSetLayouts = descriptorSetLayouts;
 
-		valheim_initDescriptors( context, &descriptorCreateInfo, &vulkanScene->descriptorSet, allocator );
+		valheim_initDescriptors( context, &descriptorCreateInfo, &vulkanMesh.descriptorSetHandle, allocator );
+		valheim_mapInsert( &vulkanScene->nodeMeshes, &subNodeId, sizeof( subNodeId ), &vulkanMesh, allocator );
 
-		valheim_deinitArray( vertices );
-		valheim_deinitArray( indices );
-		valheim_deinitArray( remap );
+		valheim_deinitIndexableArray( vertices );
+		valheim_deinitIndexableArray( indices );
+		valheim_deinitIndexableArray( remap );
 	}
 
 	if ( node->mMetaData ) {
@@ -164,30 +173,23 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 
 	for ( u32 iChild = 0; iChild < node->mNumChildren; ++iChild ) {
 		const struct aiNode *childNode = node->mChildren[ iChild ];
-
-		valheim_VulkanScene *childScene;
-		valheim_initVulkanScene( context, allocator, &childScene );
-
-		valheim_traverseNode( context, scene, childNode, childScene, allocator );
-		valheim_arrayAppend( vulkanScene->children, childScene );
+		valheim_traverseNode( context, scene, childNode, vulkanScene, newNodeId, depth + 1, allocator );
 	}
 
 	return true;
 }
 
-b8 valheim_loadGltfFile( valheim_VulkanContext *context, const char *file, valheim_Allocator *allocator, valheim_VulkanScene **outScene ) {
+b8 valheim_loadGltfFile( valheim_VulkanContext *context, const char *file, valheim_Allocator *allocator, valheim_VulkanScene *vulkanScene ) {
 	const struct aiScene *scene = aiImportFile( file, aiProcess_Triangulate );
 
 	if ( !scene ) {
 		return false;
 	}
 
-	valheim_VulkanScene *vulkanScene;
-	valheim_initVulkanScene( context, allocator, &vulkanScene );
-	valheim_traverseNode( context, scene, scene->mRootNode, vulkanScene, allocator );
+	valheim_initVulkanScene( context, allocator, vulkanScene );
+
+	valheim_traverseNode( context, scene, scene->mRootNode, vulkanScene, -1, 0, allocator );
 
 	aiReleaseImport( scene );
-
-	( *outScene ) = vulkanScene;
 	return true;
 }

@@ -27,7 +27,7 @@ b8 valheim_initCommandBuffers( valheim_VulkanContext *context, valheim_Allocator
 	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocateInfo.commandBufferCount = context->imageCount;
 
-	valheim_initArray( context->commandBuffers, context->imageCount, allocator );
+	valheim_initIndexableArray( context->commandBuffers, context->imageCount, allocator );
 	context->commandBuffers.length = context->imageCount;
 
 	const VkResult result = vkAllocateCommandBuffers( context->device, &allocateInfo, context->commandBuffers.data );

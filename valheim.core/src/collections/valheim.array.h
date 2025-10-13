@@ -8,32 +8,45 @@
 #include "valheim.allocator.h"
 #include "valheim.memory.h"
 
-#define valheim_arrayUnpack(arr) (u8**)&(arr).data, (arr).length, sizeof(*(arr).data), &(arr).capacity, (arr).allocator
+typedef struct valheim_Array {
+	u8 *data;
+	u64 stride;
+	u64 length;
+	u64 capacity;
+} valheim_Array;
 
-#define valheim_Array(T) struct { T* data; u64 capacity; u64 length; valheim_Allocator* allocator; }
+VALHEIM_API b8 valheim_initArray( u64 stride, u64 capacity, valheim_Allocator *allocator, valheim_Array *array );
 
-#define valheim_initArray(arr, cap, alloc) \
+VALHEIM_API void valheim_deinitArray( valheim_Array *array, valheim_Allocator *allocator );
+
+VALHEIM_API b8 valheim_arrayAppend( valheim_Array *array, const void *value, valheim_Allocator *allocator );
+
+#define valheim_indexableArrayUnpack(arr) (u8**)&(arr).data, (arr).length, sizeof(*(arr).data), &(arr).capacity, (arr).allocator
+
+#define valheim_IndexableArray(T) struct { T* data; u64 capacity; u64 length; valheim_Allocator* allocator; }
+
+#define valheim_initIndexableArray(arr, cap, alloc) \
   ((arr).allocator = (alloc), \
   ((arr).capacity = (cap)), \
   ((arr).length = 0), \
   ((arr).data = valheim_allocate(alloc, sizeof(*(arr).data) * (cap))))
 
-#define valheim_deinitArray(arr) \
+#define valheim_deinitIndexableArray(arr) \
   (valheim_free((arr).allocator, (arr).data), \
   (valheim_zeroMemory(&(arr), sizeof(arr))))
 
-#define valheim_arrayAppend(arr, val) \
-  (!valheim_resizeArray(valheim_arrayUnpack(arr)) ? false : \
+#define valheim_indexableArrayAppend(arr, val) \
+  (!valheim_indexableArrayResize(valheim_indexableArrayUnpack(arr)) ? false : \
   ((arr).data[(arr).length++] = (val), true), true)
 
-#define valheim_arrayRemoveAt(arr, idx) valheim_removeArrayItem(valheim_arrayUnpack(arr), idx)
+#define valheim_indexableArrayRemoveAt(arr, idx) valheim_indexableArrayRemoveItem(valheim_indexableArrayUnpack(arr), idx)
 
-#define valheim_arrayClear(arr) \
+#define valheim_indexableArrayClear(arr) \
   (valheim_zeroMemory((arr).data, sizeof(*(arr).data) * (arr).capacity), \
   ((arr).length = 0)) 
 
-VALHEIM_API b8 valheim_resizeArray(u8 **items, u64 length, u64 stride, u64 *capacity, valheim_Allocator *allocator);
+VALHEIM_API b8 valheim_indexableArrayResize(u8 **items, u64 length, u64 stride, u64 *capacity, valheim_Allocator *allocator);
 
-VALHEIM_API b8 valheim_removeArrayItem(u8 **items, u64 length, u64 stride, u64 *capacity, valheim_Allocator *allocator, u64 idx);
+VALHEIM_API b8 valheim_indexableArrayRemoveItem(u8 **items, u64 length, u64 stride, u64 *capacity, valheim_Allocator *allocator, u64 idx);
 
 #endif //VALHEIM_VALHEIM_ARRAY_H

@@ -1,10 +1,10 @@
 #include "valheim.vulkan.sync.h"
 
 b8 valheim_initSyncObjects( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
-	valheim_initArray( context->imageAvailableSemaphores, context->imageCount, allocator );
-	valheim_initArray( context->renderFinishedSemaphores, context->imageCount, allocator );
-	valheim_initArray( context->inFlightFences, context->imageCount, allocator );
-	valheim_initArray( context->imagesInFlight, context->imageCount, allocator );
+	valheim_initIndexableArray( context->imageAvailableSemaphores, context->imageCount, allocator );
+	valheim_initIndexableArray( context->renderFinishedSemaphores, context->imageCount, allocator );
+	valheim_initIndexableArray( context->inFlightFences, context->imageCount, allocator );
+	valheim_initIndexableArray( context->imagesInFlight, context->imageCount, allocator );
 
 	context->inFlightFences.length = context->imageCount;
 	context->imagesInFlight.length = context->imageCount;

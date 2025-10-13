@@ -2,10 +2,10 @@
 #include <valheim.arena.allocator.h>
 
 void valheim_initDescriptorSetManager( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
-	valheim_initArray( context->descriptorSetManager.descriptorPools, 1024, allocator );
-	valheim_initArray( context->descriptorSetManager.descriptorSets, 1024, allocator );
-	valheim_initArray( context->descriptorSetManager.freeList, 1024, allocator );
-	valheim_initArray( context->descriptorSetManager.descriptorSetCounts, 1024, allocator );
+	valheim_initIndexableArray( context->descriptorSetManager.descriptorPools, 1024, allocator );
+	valheim_initIndexableArray( context->descriptorSetManager.descriptorSets, 1024, allocator );
+	valheim_initIndexableArray( context->descriptorSetManager.freeList, 1024, allocator );
+	valheim_initIndexableArray( context->descriptorSetManager.descriptorSetCounts, 1024, allocator );
 
 	context->descriptorSetManager.descriptorPools.length = 1024;
 	context->descriptorSetManager.descriptorSets.length = 1024;
@@ -25,10 +25,10 @@ void valheim_deinitDescriptorSetManager( valheim_VulkanContext *context, valheim
 		}
 	}
 
-	valheim_deinitArray( context->descriptorSetManager.descriptorPools );
-	valheim_deinitArray( context->descriptorSetManager.descriptorSets );
-	valheim_deinitArray( context->descriptorSetManager.descriptorSetCounts );
-	valheim_deinitArray( context->descriptorSetManager.freeList );
+	valheim_deinitIndexableArray( context->descriptorSetManager.descriptorPools );
+	valheim_deinitIndexableArray( context->descriptorSetManager.descriptorSets );
+	valheim_deinitIndexableArray( context->descriptorSetManager.descriptorSetCounts );
+	valheim_deinitIndexableArray( context->descriptorSetManager.freeList );
 }
 
 void valheim_addDescriptorSet( valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *descriptorSet ) {

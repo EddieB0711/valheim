@@ -13,13 +13,13 @@
 #include <spirv-reflect/spirv_reflect.h>
 
 typedef struct valheim_ShaderStageProperties {
-	valheim_Array( VkPipelineShaderStageCreateInfo ) pipelineShaderStages;
-	valheim_Array( VkVertexInputAttributeDescription ) vertexInputAttributes;
-	valheim_Array( VkVertexInputBindingDescription ) bindingDescriptions;
-	valheim_Array( char * ) entries;
-	valheim_Array( VkShaderStageFlags ) shaderStages;
-	valheim_Array( VkDescriptorSetLayoutBinding ) layoutBindings;
-	valheim_Array( VkPushConstantRange ) pushConstants;
+	valheim_IndexableArray( VkPipelineShaderStageCreateInfo ) pipelineShaderStages;
+	valheim_IndexableArray( VkVertexInputAttributeDescription ) vertexInputAttributes;
+	valheim_IndexableArray( VkVertexInputBindingDescription ) bindingDescriptions;
+	valheim_IndexableArray( char * ) entries;
+	valheim_IndexableArray( VkShaderStageFlags ) shaderStages;
+	valheim_IndexableArray( VkDescriptorSetLayoutBinding ) layoutBindings;
+	valheim_IndexableArray( VkPushConstantRange ) pushConstants;
 
 	u32 bufferCount[ 10 ];
 } valheim_ShaderStageProperties;
@@ -54,7 +54,7 @@ static b8 valheim_initShader( valheim_VulkanContext *context, const char *file, 
 	if ( module.shader_stage == SPV_REFLECT_SHADER_STAGE_VERTEX_BIT ) {
 		u32 stride = 0;
 
-		valheim_initArray( properties->vertexInputAttributes, module.input_variable_count, allocator );
+		valheim_initIndexableArray( properties->vertexInputAttributes, module.input_variable_count, allocator );
 
 		for ( u32 iInput = 0; iInput < module.input_variable_count; ++iInput ) {
 			const SpvReflectInterfaceVariable *input = module.input_variables[ iInput ];
@@ -66,23 +66,23 @@ static b8 valheim_initShader( valheim_VulkanContext *context, const char *file, 
 			vertexInput.format = ( VkFormat ) input->format;
 
 			stride += valheim_translateFormatToStride( ( VkFormat ) input->format );
-			valheim_arrayAppend( properties->vertexInputAttributes, vertexInput );
+			valheim_indexableArrayAppend( properties->vertexInputAttributes, vertexInput );
 		}
 
-		valheim_initArray( properties->bindingDescriptions, 1, allocator );
+		valheim_initIndexableArray( properties->bindingDescriptions, 1, allocator );
 
 		VkVertexInputBindingDescription bindingDescription = { 0 };
 		bindingDescription.binding = 0;
 		bindingDescription.stride = stride;
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-		valheim_arrayAppend( properties->bindingDescriptions, bindingDescription );
+		valheim_indexableArrayAppend( properties->bindingDescriptions, bindingDescription );
 	}
 
-	valheim_initArray( properties->entries, module.entry_point_count, allocator );
-	valheim_initArray( properties->shaderStages, module.entry_point_count, allocator );
-	valheim_initArray( properties->pushConstants, module.push_constant_block_count, allocator );
-	valheim_initArray( properties->layoutBindings, module.descriptor_binding_count, allocator );
+	valheim_initIndexableArray( properties->entries, module.entry_point_count, allocator );
+	valheim_initIndexableArray( properties->shaderStages, module.entry_point_count, allocator );
+	valheim_initIndexableArray( properties->pushConstants, module.push_constant_block_count, allocator );
+	valheim_initIndexableArray( properties->layoutBindings, module.descriptor_binding_count, allocator );
 
 	VkShaderStageFlags flags[ 1000 ] = { 0 };
 	for ( u32 iEntry = 0; iEntry < module.entry_point_count; ++iEntry ) {
@@ -99,7 +99,7 @@ static b8 valheim_initShader( valheim_VulkanContext *context, const char *file, 
 						pushConstant.stageFlags = flags[ module.push_constant_blocks[ iPush ].spirv_id ];
 						pushConstant.offset = module.push_constant_blocks[ iPush ].offset;
 
-						valheim_arrayAppend( properties->pushConstants, pushConstant );
+						valheim_indexableArrayAppend( properties->pushConstants, pushConstant );
 						break;
 					}
 				}
@@ -118,7 +118,7 @@ static b8 valheim_initShader( valheim_VulkanContext *context, const char *file, 
 							binding.descriptorCount += module.descriptor_bindings[ iDescriptor ].array.dims[ iArr ];
 						}
 
-						valheim_arrayAppend( properties->layoutBindings, binding );
+						valheim_indexableArrayAppend( properties->layoutBindings, binding );
 					}
 				}
 			}
@@ -142,10 +142,10 @@ static b8 valheim_initShader( valheim_VulkanContext *context, const char *file, 
 }
 
 void valheim_initPipelineManager( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
-	valheim_initArray( context->pipelineManager.pipelines, 1024, allocator );
-	valheim_initArray( context->pipelineManager.pipelineLayouts, 1024, allocator );
-	valheim_initArray( context->pipelineManager.destriptorSetLayouts, 1024, allocator );
-	valheim_initArray( context->pipelineManager.freeList, 1024, allocator );
+	valheim_initIndexableArray( context->pipelineManager.pipelines, 1024, allocator );
+	valheim_initIndexableArray( context->pipelineManager.pipelineLayouts, 1024, allocator );
+	valheim_initIndexableArray( context->pipelineManager.destriptorSetLayouts, 1024, allocator );
+	valheim_initIndexableArray( context->pipelineManager.freeList, 1024, allocator );
 
 	context->pipelineManager.pipelines.length = 1024;
 	context->pipelineManager.pipelineLayouts.length = 1024;
@@ -166,10 +166,10 @@ void valheim_deinitPipelineManager( valheim_VulkanContext *context, valheim_Allo
 		}
 	}
 
-	valheim_deinitArray( context->pipelineManager.destriptorSetLayouts );
-	valheim_deinitArray( context->pipelineManager.freeList );
-	valheim_deinitArray( context->pipelineManager.pipelines );
-	valheim_deinitArray( context->pipelineManager.pipelineLayouts );
+	valheim_deinitIndexableArray( context->pipelineManager.destriptorSetLayouts );
+	valheim_deinitIndexableArray( context->pipelineManager.freeList );
+	valheim_deinitIndexableArray( context->pipelineManager.pipelines );
+	valheim_deinitIndexableArray( context->pipelineManager.pipelineLayouts );
 }
 
 u32 valheim_addPipeline( valheim_VulkanContext *context, valheim_PipelineAddInfo *addInfo ) {
@@ -212,7 +212,7 @@ b8 valheim_initPipeline( valheim_VulkanContext *context, valheim_PipelineCreateI
 		return false;
 	}
 
-	valheim_initArray( properties.pipelineShaderStages, properties.entries.length, &tempAllocator );
+	valheim_initIndexableArray( properties.pipelineShaderStages, properties.entries.length, &tempAllocator );
 
 	for ( u32 iName = 0; iName < properties.entries.length; ++iName ) {
 		VkPipelineShaderStageCreateInfo shaderStage = { 0 };
@@ -221,7 +221,7 @@ b8 valheim_initPipeline( valheim_VulkanContext *context, valheim_PipelineCreateI
 		shaderStage.module = module;
 		shaderStage.stage = properties.shaderStages.data[ iName ];
 
-		valheim_arrayAppend( properties.pipelineShaderStages, shaderStage );
+		valheim_indexableArrayAppend( properties.pipelineShaderStages, shaderStage );
 	}
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo = { 0 };
@@ -358,7 +358,7 @@ b8 valheim_initPipeline( valheim_VulkanContext *context, valheim_PipelineCreateI
 	return true;
 }
 
-b8 valheim_loadPipelines( valheim_VulkanContext *context ) {
+b8 valheim_loadPipelines( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
 	const char *files[] = {
 		"assets/shaders/Builtin.StaticTexturedMesh.spv",
 		"assets/shaders/BuiltIn.ImGui.spv",
@@ -376,7 +376,7 @@ b8 valheim_loadPipelines( valheim_VulkanContext *context ) {
 			return false;
 		}
 
-		valheim_mapInsert( context->pipelineHandles, names[ iFile ], valheim_stringLength( names[ iFile ] ), pipeline );
+		valheim_mapInsert( &context->pipelineHandles, names[ iFile ], valheim_stringLength( names[ iFile ] ), &pipeline, allocator );
 	}
 
 	return true;

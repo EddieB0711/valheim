@@ -7,6 +7,6 @@
 
 #include "valheim.vulkan.types.h"
 
-b8 valheim_loadGltfFile( valheim_VulkanContext *context, const char *file, valheim_Allocator *allocator, valheim_VulkanScene **outScene );
+b8 valheim_loadGltfFile( valheim_VulkanContext *context, const char *file, valheim_Allocator *allocator, valheim_VulkanScene *vulkanScene );
 
 #endif //VALHEIM_VALHEIM_VULKAN_GLTF_H

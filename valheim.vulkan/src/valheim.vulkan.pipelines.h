@@ -27,6 +27,6 @@ b8 valheim_initPipelineCache( valheim_VulkanContext *context );
 
 b8 valheim_initPipeline( valheim_VulkanContext *context, valheim_PipelineCreateInfo *createInfo, valheim_VulkanPipeline *outPipeline );
 
-b8 valheim_loadPipelines( valheim_VulkanContext *context );
+b8 valheim_loadPipelines( valheim_VulkanContext *context, valheim_Allocator *allocator );
 
 #endif //VALHEIM_VALHEIM_VULKAN_PIPELINE_H

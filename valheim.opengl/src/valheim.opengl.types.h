@@ -27,10 +27,10 @@ typedef struct valheim_SceneHierarchy {
 } valheim_SceneHierarchy;
 
 typedef struct valheim_Scene {
-	valheim_Array( valheim_SceneHierarchy ) hierarchies;
-	valheim_Array( valheim_Mesh ) nodeMeshes;
-	valheim_Array( valheim_Material ) nodeMaterials;
-	valheim_Array( mat4 ) localTransforms;
+	valheim_IndexableArray( valheim_SceneHierarchy ) hierarchies;
+	valheim_IndexableArray( valheim_Mesh ) nodeMeshes;
+	valheim_IndexableArray( valheim_Material ) nodeMaterials;
+	valheim_IndexableArray( mat4 ) localTransforms;
 } valheim_Scene;
 
 typedef struct valheim_Context {

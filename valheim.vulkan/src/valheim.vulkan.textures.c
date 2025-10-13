@@ -12,12 +12,12 @@
 #include <stb_image.h>
 
 void valheim_initTextureManager( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
-	valheim_initArray( context->textureManager.images, VALHEIM_KIBIBYTE( 1 ), allocator );
-	valheim_initArray( context->textureManager.imageMemory, VALHEIM_KIBIBYTE( 1 ), allocator );
-	valheim_initArray( context->textureManager.imageViews, VALHEIM_KIBIBYTE( 1 ), allocator );
-	valheim_initArray( context->textureManager.imageSizes, VALHEIM_KIBIBYTE( 1 ), allocator );
-	valheim_initArray( context->textureManager.samplers, VALHEIM_KIBIBYTE( 1 ), allocator );
-	valheim_initArray( context->textureManager.freeList, VALHEIM_KIBIBYTE( 1 ), allocator );
+	valheim_initIndexableArray( context->textureManager.images, VALHEIM_KIBIBYTE( 1 ), allocator );
+	valheim_initIndexableArray( context->textureManager.imageMemory, VALHEIM_KIBIBYTE( 1 ), allocator );
+	valheim_initIndexableArray( context->textureManager.imageViews, VALHEIM_KIBIBYTE( 1 ), allocator );
+	valheim_initIndexableArray( context->textureManager.imageSizes, VALHEIM_KIBIBYTE( 1 ), allocator );
+	valheim_initIndexableArray( context->textureManager.samplers, VALHEIM_KIBIBYTE( 1 ), allocator );
+	valheim_initIndexableArray( context->textureManager.freeList, VALHEIM_KIBIBYTE( 1 ), allocator );
 
 	context->textureManager.images.length = VALHEIM_KIBIBYTE( 1 );
 	context->textureManager.imageMemory.length = VALHEIM_KIBIBYTE( 1 );

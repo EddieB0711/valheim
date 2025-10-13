@@ -30,8 +30,8 @@ static b8 valheim_traverseNode( valheim_Context *context, const struct aiScene *
 	for ( u32 iMesh = 0; iMesh < aiNode->mNumMeshes; ++iMesh ) {
 		const struct aiMesh *mesh = aiScene->mMeshes[ aiNode->mMeshes[ iMesh ] ];
 
-		valheim_Array( valheim_Vertex ) vertices;
-		valheim_initArray( vertices, mesh->mNumVertices, allocator );
+		valheim_IndexableArray( valheim_Vertex ) vertices;
+		valheim_initIndexableArray( vertices, mesh->mNumVertices, allocator );
 
 		for ( u32 iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex ) {
 			const struct aiVector3D pos = mesh->mVertices[ iVertex ];
@@ -45,20 +45,20 @@ static b8 valheim_traverseNode( valheim_Context *context, const struct aiScene *
 			valheim_translateColor4DToVec4( &color, vertex.color );
 			valheim_translateVector3DToVec3( &normal, vertex.normal );
 
-			valheim_arrayAppend( vertices, vertex );
+			valheim_indexableArrayAppend( vertices, vertex );
 		}
 
-		valheim_Array( u32 ) indices;
-		valheim_initArray( indices, mesh->mNumFaces, allocator );
+		valheim_IndexableArray( u32 ) indices;
+		valheim_initIndexableArray( indices, mesh->mNumFaces, allocator );
 
 		for ( u32 iFace = 0; iFace < mesh->mNumFaces; ++iFace ) {
 			for ( u32 iIndex = 0; iIndex < 3; ++iIndex ) {
-				valheim_arrayAppend( indices, mesh->mFaces[ iFace ].mIndices[ iIndex ] );
+				valheim_indexableArrayAppend( indices, mesh->mFaces[ iFace ].mIndices[ iIndex ] );
 			}
 		}
 
-		valheim_Array( u32 ) remap;
-		valheim_initArray( remap, indices.length, allocator );
+		valheim_IndexableArray( u32 ) remap;
+		valheim_initIndexableArray( remap, indices.length, allocator );
 
 		meshopt_generateVertexRemap( remap.data, indices.data, indices.length, vertices.data, vertices.length, sizeof( *vertices.data ) );
 		meshopt_remapIndexBuffer( indices.data, indices.data, indices.length, remap.data );

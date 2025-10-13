@@ -93,8 +93,8 @@ b8 valheim_initSwapChain( valheim_VulkanContext *context, valheim_Allocator *all
 
 	vkGetSwapchainImagesKHR( context->device, context->swapChain, &context->imageCount, NULL );
 
-	valheim_initArray( context->swapChainImages, context->imageCount, allocator );
-	valheim_initArray( context->swapChainImageViews, context->imageCount, allocator );
+	valheim_initIndexableArray( context->swapChainImages, context->imageCount, allocator );
+	valheim_initIndexableArray( context->swapChainImageViews, context->imageCount, allocator );
 
 	context->swapChainImages.length = context->imageCount;
 	context->swapChainImageViews.length = context->imageCount;
@@ -129,8 +129,8 @@ void valheim_deinitSwapChain( valheim_VulkanContext *context, valheim_Allocator 
 	if ( context->swapChain ) {
 		vkDestroySwapchainKHR( context->device, context->swapChain, NULL );
 
-		valheim_deinitArray( context->swapChainImages );
-		valheim_deinitArray( context->swapChainImageViews );
+		valheim_deinitIndexableArray( context->swapChainImages );
+		valheim_deinitIndexableArray( context->swapChainImageViews );
 	}
 }
 
