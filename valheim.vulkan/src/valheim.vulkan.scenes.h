@@ -13,4 +13,6 @@ s32 valheim_vulkanSceneAddNode( valheim_VulkanScene *scene, s32 parent, s32 dept
 
 void valheim_vulkanSceneRecalculateTransforms( valheim_VulkanScene *scene );
 
+void valheim_vulkanSceneRender( valheim_VulkanContext *context, valheim_VulkanScene *scene, VkCommandBuffer commandBuffer, valheim_VulkanFrameData *frameData );
+
 #endif //VALHEIM_VALHEIM_VULKAN_SCENES_H

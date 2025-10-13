@@ -13,31 +13,8 @@
 #include <cimgui_impl.h>
 
 static void valheim_renderScene( valheim_VulkanContext *context, valheim_VulkanScene *scene, VkCommandBuffer commandBuffer, valheim_VulkanFrameData *frameData ) {
-	glm_mat4_identity( frameData->model );
-
 	valheim_vulkanSceneRecalculateTransforms( scene );
-	//glm_mat4_mul(frameData->model, scene->localTransform, frameData->model);
-	//glm_rotate(frameData->model, glm_rad(90.0f), (vec3){1, 0, 0});
-	//glm_scale(frameData->model, scene->scale);
-
-	//if ( scene->mesh.indexBuffer > -1 ) {
-	//	const VkDescriptorSet *descriptorSets = context->descriptorSetManager.descriptorSets.data[ scene->descriptorSet ];
-
-	//	vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context->pipelineManager.pipelines.data[ scene->pipeline ] );
-	//	vkCmdBindDescriptorSets( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context->pipelineManager.pipelineLayouts.data[ scene->pipeline ], 0, 1, &descriptorSets[ context->currentFrame ], 0, NULL );
-
-	//	vkCmdPushConstants( commandBuffer, context->pipelineManager.pipelineLayouts.data[ scene->pipeline ], VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof( *frameData ), frameData );
-
-	//	const VkDeviceSize offsets[ 1 ] = { 0 };
-	//	vkCmdBindVertexBuffers( commandBuffer, 0, 1, &context->bufferManager.buffers.data[ scene->mesh.vertexBuffer ], offsets );
-
-	//	vkCmdBindIndexBuffer( commandBuffer, context->bufferManager.buffers.data[ scene->mesh.indexBuffer ], 0, VK_INDEX_TYPE_UINT32 );
-	//	vkCmdDrawIndexed( commandBuffer, scene->mesh.indexCount, 1, 0, 0, 0 );
-	//}
-
-	//for ( u32 iChild = 0; iChild < scene->children.length; ++iChild ) {
-	//	valheim_renderScene( context, scene->children.data[ iChild ], commandBuffer, frameData );
-	//}
+	valheim_vulkanSceneRender( context, scene, commandBuffer, frameData );
 }
 
 static void valheim_renderMainMenu( valheim_VulkanContext *context ) {

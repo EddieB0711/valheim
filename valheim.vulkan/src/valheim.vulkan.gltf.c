@@ -65,8 +65,7 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 	mat4 transform;
 	valheim_copyAssimpMat4ToMat4( &node->mTransformation, transform );
 
-	valheim_arrayAppend( &vulkanScene->localTransforms, transform, allocator );
-	valheim_arrayAppend( &vulkanScene->globalTransforms, transform, allocator );
+	glm_mat4_copy( transform, ( ( mat4 * ) vulkanScene->localTransforms.data)[ newNodeId ] );
 
 	for ( u32 iMesh = 0; iMesh < node->mNumMeshes; ++iMesh ) {
 		s32 subNodeId = valheim_vulkanSceneAddNode( vulkanScene, newNodeId, depth + 1, allocator );
@@ -109,6 +108,8 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 		meshopt_remapVertexBuffer( vertices.data, vertices.data, vertices.length, sizeof( *vertices.data ), remap.data );
 
 		meshopt_optimizeVertexCache( indices.data, indices.data, indices.length, vertices.length );
+		meshopt_optimizeOverdraw( indices.data, indices.data, indices.length, vertices.data, vertices.length, sizeof( valheim_Vertex ), 1.05f );
+		meshopt_optimizeVertexFetch( vertices.data, indices.data, indices.length, vertices.data, vertices.length, sizeof( valheim_Vertex ) );
 
 		valheim_VulkanBuffer vertexBuffer;
 		valheim_initVertexBuffer( context, vertices.data, sizeof( valheim_Vertex ) * vertices.length, &vertexBuffer );
@@ -122,19 +123,19 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 		char baseColorFullPath[ 256 ] = { 0 };
 		valheim_formatString( baseColorFullPath, VALHEIM_ARRAY_LEN( baseColorFullPath ), "%s/%s", "assets", baseColorPath.data );
 
-		valheim_VulkanTexture texture;
-		valheim_initTexture( context, baseColorFullPath, &texture );
+		valheim_VulkanTexture baseColorTexture;
+		valheim_initTexture( context, baseColorFullPath, &baseColorTexture );
 
 		valheim_VulkanMesh vulkanMesh = { 0 };
 		vulkanMesh.indexBuffer = indexBuffer;
 		vulkanMesh.vertexBuffer = vertexBuffer;
 		vulkanMesh.indexCount = ( u32 ) indices.length;
-		vulkanMesh.material.texture = texture;
+		vulkanMesh.material.baseColorTexture = baseColorTexture;
 		valheim_mapFind( &context->pipelineHandles, VALHEIM_STATIC_TEXTURED_MESH, valheim_stringLength( VALHEIM_STATIC_TEXTURED_MESH ), &vulkanMesh.pipelineHandle );
 
 		VkDescriptorImageInfo imageInfo = { 0 };
-		imageInfo.sampler = context->textureManager.samplers.data[ vulkanMesh.material.texture ];
-		imageInfo.imageView = context->textureManager.imageViews.data[ vulkanMesh.material.texture ];
+		imageInfo.sampler = context->textureManager.samplers.data[ vulkanMesh.material.baseColorTexture ];
+		imageInfo.imageView = context->textureManager.imageViews.data[ vulkanMesh.material.baseColorTexture ];
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		valheim_DescriptorImageInfo descriptorImageInfo = { 0 };
@@ -172,8 +173,7 @@ static b8 valheim_traverseNode( valheim_VulkanContext *context, const struct aiS
 	}
 
 	for ( u32 iChild = 0; iChild < node->mNumChildren; ++iChild ) {
-		const struct aiNode *childNode = node->mChildren[ iChild ];
-		valheim_traverseNode( context, scene, childNode, vulkanScene, newNodeId, depth + 1, allocator );
+		valheim_traverseNode( context, scene, node->mChildren[ iChild ], vulkanScene, newNodeId, depth + 1, allocator );
 	}
 
 	return true;
@@ -187,7 +187,6 @@ b8 valheim_loadGltfFile( valheim_VulkanContext *context, const char *file, valhe
 	}
 
 	valheim_initVulkanScene( context, allocator, vulkanScene );
-
 	valheim_traverseNode( context, scene, scene->mRootNode, vulkanScene, -1, 0, allocator );
 
 	aiReleaseImport( scene );

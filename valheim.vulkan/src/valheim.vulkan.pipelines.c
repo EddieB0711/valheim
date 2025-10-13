@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/10/2025.
-//
-
 #include "valheim.vulkan.pipelines.h"
 #include "valheim.vulkan.images.h"
 #include "valheim.vulkan.devices.h"

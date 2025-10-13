@@ -43,7 +43,7 @@ static void *valheim_vulkanLoadAddress( const char *function, void *userData ) {
 }
 
 static void valheim_initVulkanInitializationGraph( valheim_VulkanInitializationGraph *graph, valheim_Allocator *allocator ) {
-	valheim_initMap( &graph->nodes, sizeof( valheim_VulkanInitializationGraphNode * ), 1023, valheim_hash, allocator );
+	valheim_initMap( &graph->nodes, sizeof( valheim_VulkanInitializationGraphNode * ), 1031, valheim_hash, allocator );
 	valheim_initIndexableArray( graph->arrNodes, 1, allocator );
 
 	const char *steps[] = {
@@ -101,7 +101,7 @@ static void valheim_sortInitializationSteps( valheim_VulkanInitializationGraph *
 	valheim_initQueue( sizeof( valheim_VulkanInitializationGraphNode * ), allocator, &queue );
 
 	valheim_Map lengths;
-	valheim_initMap( &lengths, sizeof( valheim_VulkanInitializationGraphNodeLength ), 100, valheim_hash, allocator );
+	valheim_initMap( &lengths, sizeof( valheim_VulkanInitializationGraphNodeLength ), 1031, valheim_hash, allocator );
 
 	for ( u32 iNode = 0; iNode < graph->arrNodes.length; ++iNode ) {
 		valheim_VulkanInitializationGraphNode *node = graph->arrNodes.data[ iNode ];
@@ -151,6 +151,7 @@ static void valheim_processKeyPress( GLFWwindow *window, s32 key, s32 scancode, 
 		if ( context->uiInput.shouldShowUI ) {
 			glfwSetInputMode( context->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
 		} else {
+			glfwSetCursorPos( context->window, context->lastMouseX, context->lastMouseY );
 			glfwSetInputMode( context->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
 		}
 	}
@@ -184,10 +185,6 @@ static void valheim_processInput( valheim_VulkanContext *context, f32 deltaTime 
 static void valheim_processMouseMovement( GLFWwindow *window, f64 xpos, f64 ypos ) {
 	valheim_VulkanContext *context = glfwGetWindowUserPointer( window );
 
-	if ( context->uiInput.shouldShowUI ) {
-		return;
-	}
-
 	const f32 fxpos = ( f32 ) xpos;
 	const f32 fypos = ( f32 ) ypos;
 
@@ -195,6 +192,10 @@ static void valheim_processMouseMovement( GLFWwindow *window, f64 xpos, f64 ypos
 		context->lastMouseX = fxpos;
 		context->lastMouseY = fypos;
 		context->firstMouseMoved = false;
+	}
+
+	if ( context->uiInput.shouldShowUI ) {
+		return;
 	}
 
 	const f32 xoffset = fxpos - context->lastMouseX;

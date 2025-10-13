@@ -3,6 +3,7 @@ INCLUDE(../odin.cmake/odin.cmake)
 SET(PROJECT_NAME valheim.vulkan)
 
 FIND_PACKAGE(volk CONFIG REQUIRED)
+FIND_PACKAGE(glslang CONFIG REQUIRED)
 
 ODIN_SETUP_LIBRARY(${PROJECT_NAME})
 
@@ -20,4 +21,6 @@ TARGET_LINK_LIBRARIES(
 	PUBLIC
 	volk::volk
 	volk::volk_headers
+	glslang::glslang
+	glslang::SPIRV
 )

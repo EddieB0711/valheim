@@ -68,8 +68,7 @@ typedef struct valheim_DescriptorSetManager {
 } valheim_DescriptorSetManager;
 
 typedef struct valheim_VulkanMaterial {
-	f32 albedo;
-	valheim_VulkanTexture texture;
+	valheim_VulkanTexture baseColorTexture;
 } valheim_VulkanMaterial;
 
 typedef struct valheim_VulkanMesh {
