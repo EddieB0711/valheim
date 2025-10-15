@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/9/2025.
-//
-
 #ifndef VALHEIM_VALHEIM_VULKAN_DESCRIPTORS_H
 #define VALHEIM_VALHEIM_VULKAN_DESCRIPTORS_H
 
@@ -39,12 +35,12 @@ typedef struct valheim_DescriptorAddInfo {
 	u32 descriptorSetCount;
 } valheim_DescriptorAddInfo;
 
-void valheim_initDescriptorSetManager( valheim_VulkanContext *context, valheim_Allocator *allocator );
+void valheim_initDescriptorSetManager(valheim_VulkanContext *context, valheim_Allocator *allocator);
 
-void valheim_deinitDescriptorSetManager( valheim_VulkanContext *context, valheim_Allocator *allocator );
+void valheim_deinitDescriptorSetManager(valheim_VulkanContext *context, valheim_Allocator *allocator);
 
-void valheim_addDescriptorSet( valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *descriptorSet );
+void valheim_addDescriptorSet(valheim_VulkanContext *context, valheim_DescriptorAddInfo *addInfo, valheim_VulkanDescriptorSet *descriptorSet);
 
-b8 valheim_initDescriptors( valheim_VulkanContext *context, valheim_DescriptorSetCreateInfo *createInfo, valheim_VulkanDescriptorSet *descriptorSet, valheim_Allocator *allocator );
+b8 valheim_initDescriptors(valheim_VulkanContext *context, valheim_DescriptorSetCreateInfo *createInfo, valheim_VulkanDescriptorSet *descriptorSet, valheim_Allocator *allocator);
 
 #endif //VALHEIM_VALHEIM_VULKAN_DESCRIPTORS_H

@@ -12,17 +12,17 @@
 #include <cimgui.h>
 #include <cimgui_impl.h>
 
-static void valheim_renderScene( valheim_VulkanContext *context, valheim_VulkanScene *scene, VkCommandBuffer commandBuffer, valheim_VulkanFrameData *frameData ) {
-	valheim_vulkanSceneRecalculateTransforms( scene );
-	valheim_vulkanSceneRender( context, scene, commandBuffer, frameData );
+static void valheim_renderScene(valheim_VulkanContext *context, valheim_VulkanScene *scene, VkCommandBuffer commandBuffer, valheim_VulkanFrameData *frameData) {
+	valheim_vulkanSceneRecalculateTransforms(scene);
+	valheim_vulkanSceneRender(context, scene, commandBuffer, frameData);
 }
 
-static void valheim_renderMainMenu( valheim_VulkanContext *context ) {
-	igBegin( "Menu", context->uiInput.shouldShowUI, ImGuiWindowFlags_MenuBar );
-	if ( igBeginMenuBar() ) {
-		if ( igBeginMenu( "File", true ) ) {
-			if ( igMenuItem_Bool( "Close", "", false, true ) ) {
-				glfwSetWindowShouldClose( context->window, true );
+static void valheim_renderMainMenu(valheim_VulkanContext *context) {
+	igBegin("Menu", context->uiInput.shouldShowUI, ImGuiWindowFlags_MenuBar);
+	if (igBeginMenuBar()) {
+		if (igBeginMenu("File", true)) {
+			if (igMenuItem_Bool("Close", "", false, true)) {
+				glfwSetWindowShouldClose(context->window, true);
 			}
 			igEndMenu();
 		}
@@ -31,94 +31,94 @@ static void valheim_renderMainMenu( valheim_VulkanContext *context ) {
 	igEnd();
 }
 
-static void valheim_renderUi( valheim_VulkanContext *context, VkCommandBuffer commandBuffer ) {
-	if ( context->uiInput.shouldShowUI ) {
-		valheim_renderMainMenu( context );
+static void valheim_renderUi(valheim_VulkanContext *context, VkCommandBuffer commandBuffer) {
+	if (context->uiInput.shouldShowUI) {
+		valheim_renderMainMenu(context);
 	}
 
 	igRender();
 	ImDrawData *imguiDrawData = igGetDrawData();
-	ImGui_ImplVulkan_RenderDrawData( imguiDrawData, commandBuffer, NULL );
+	ImGui_ImplVulkan_RenderDrawData(imguiDrawData, commandBuffer, NULL);
 
 	igUpdatePlatformWindows();
-	igRenderPlatformWindowsDefault( NULL, NULL );
+	igRenderPlatformWindowsDefault(NULL, NULL);
 }
 
-VkCommandBuffer valheim_beginRendering( valheim_VulkanContext *context ) {
-	const VkClearValue clearColor = ( VkClearValue ){ .color = ( VkClearColorValue ){{0.3f, 0.5f, 0.85f, 1.0f}} };
-	const VkClearValue clearDepth = ( VkClearValue ){ .depthStencil = ( VkClearDepthStencilValue ){1.0f, 0} };
+VkCommandBuffer valheim_beginRendering(valheim_VulkanContext *context) {
+	const VkClearValue clearColor = (VkClearValue){.color = (VkClearColorValue){{0.3f, 0.5f, 0.85f, 1.0f}}};
+	const VkClearValue clearDepth = (VkClearValue){.depthStencil = (VkClearDepthStencilValue){1.0f, 0}};
 
-	VkRenderingAttachmentInfo colorAttachment = { 0 };
+	VkRenderingAttachmentInfo colorAttachment = {0};
 	colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-	colorAttachment.imageView = context->textureManager.imageViews.data[ context->colorTexture ];
+	colorAttachment.imageView = context->textureManager.imageViews.data[context->colorTexture];
 	colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	colorAttachment.resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT;
-	colorAttachment.resolveImageView = context->swapChainImageViews.data[ context->currentFrame ];
+	colorAttachment.resolveImageView = context->swapChainImageViews.data[context->currentFrame];
 	colorAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	colorAttachment.clearValue = clearColor;
 
-	VkRenderingAttachmentInfo depthAttachment = { 0 };
+	VkRenderingAttachmentInfo depthAttachment = {0};
 	depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-	depthAttachment.imageView = context->textureManager.imageViews.data[ context->depthTexture ];
+	depthAttachment.imageView = context->textureManager.imageViews.data[context->depthTexture];
 	depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	depthAttachment.clearValue = clearDepth;
 
-	VkRenderingInfo renderingInfo = { 0 };
+	VkRenderingInfo renderingInfo = {0};
 	renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-	renderingInfo.renderArea.offset = ( VkOffset2D ){ .x = 0, .y = 0 };
+	renderingInfo.renderArea.offset = (VkOffset2D){.x = 0, .y = 0};
 	renderingInfo.renderArea.extent = context->capabilities.currentExtent;
 	renderingInfo.layerCount = 1;
 	renderingInfo.colorAttachmentCount = 1;
 	renderingInfo.pColorAttachments = &colorAttachment;
 	renderingInfo.pDepthAttachment = &depthAttachment;
 
-	vkCmdBeginRendering( context->commandBuffers.data[ context->currentFrame ], &renderingInfo );
+	vkCmdBeginRendering(context->commandBuffers.data[context->currentFrame], &renderingInfo);
 
 	ImGui_ImplGlfw_NewFrame();
 	ImGui_ImplVulkan_NewFrame();
 	igNewFrame();
 
-	return context->commandBuffers.data[ context->currentFrame ];
+	return context->commandBuffers.data[context->currentFrame];
 }
 
-VkCommandBuffer valheim_endRendering( valheim_VulkanContext *context ) {
-	VkCommandBuffer commandBuffer = context->commandBuffers.data[ context->currentFrame ];
-	vkCmdEndRendering( commandBuffer );
-	return context->commandBuffers.data[ context->currentFrame ];
+VkCommandBuffer valheim_endRendering(valheim_VulkanContext *context) {
+	VkCommandBuffer commandBuffer = context->commandBuffers.data[context->currentFrame];
+	vkCmdEndRendering(commandBuffer);
+	return context->commandBuffers.data[context->currentFrame];
 }
 
-b8 valheim_beginScene( valheim_VulkanContext *context, valheim_Allocator *allocator ) {
-	VkResult result = vkWaitForFences( context->device, 1, &context->inFlightFences.data[ context->currentFrame ], VK_TRUE, UINT64_MAX );
-	result = vkAcquireNextImageKHR( context->device, context->swapChain, UINT64_MAX, context->imageAvailableSemaphores.data[ context->currentFrame ], NULL, &context->currentImage );
+b8 valheim_beginScene(valheim_VulkanContext *context, valheim_Allocator *allocator) {
+	VkResult result = vkWaitForFences(context->device, 1, &context->inFlightFences.data[context->currentFrame], VK_TRUE, UINT64_MAX);
+	result = vkAcquireNextImageKHR(context->device, context->swapChain, UINT64_MAX, context->imageAvailableSemaphores.data[context->currentFrame], NULL, &context->currentImage);
 
-	if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
-		valheim_recreateSwapChain( context, allocator );
-		valheim_destroyTexture( context, context->colorTexture );
-		valheim_destroyTexture( context, context->depthTexture );
-		valheim_initColorTexture( context );
-		valheim_initDepthTexture( context );
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		valheim_recreateSwapChain(context, allocator);
+		valheim_destroyTexture(context, context->colorTexture);
+		valheim_destroyTexture(context, context->depthTexture);
+		valheim_initColorTexture(context);
+		valheim_initDepthTexture(context);
 		return false;
 	}
 
-	result = vkResetFences( context->device, 1, &context->inFlightFences.data[ context->currentFrame ] );
+	result = vkResetFences(context->device, 1, &context->inFlightFences.data[context->currentFrame]);
 
-	if ( context->imagesInFlight.data[ context->currentImage ] != VK_NULL_HANDLE && context->imagesInFlight.data[ context->currentImage ] != context->inFlightFences.data[ context->currentFrame ] ) {
-		result = vkWaitForFences( context->device, 1, &context->imagesInFlight.data[ context->currentImage ], VK_TRUE, UINT64_MAX );
+	if (context->imagesInFlight.data[context->currentImage] != VK_NULL_HANDLE && context->imagesInFlight.data[context->currentImage] != context->inFlightFences.data[context->currentFrame]) {
+		result = vkWaitForFences(context->device, 1, &context->imagesInFlight.data[context->currentImage], VK_TRUE, UINT64_MAX);
 	}
 
-	context->imagesInFlight.data[ context->currentImage ] = context->inFlightFences.data[ context->currentFrame ];
+	context->imagesInFlight.data[context->currentImage] = context->inFlightFences.data[context->currentFrame];
 
-	vkResetCommandBuffer( context->commandBuffers.data[ context->currentFrame ], 0 );
+	vkResetCommandBuffer(context->commandBuffers.data[context->currentFrame], 0);
 
-	const VkCommandBuffer commandBuffer = valheim_beginCommandBuffer( context );
+	const VkCommandBuffer commandBuffer = valheim_beginCommandBuffer(context);
 
 	valheim_transitionImageLayout(
 		commandBuffer,
-		context->swapChainImages.data[ context->currentFrame ],
+		context->swapChainImages.data[context->currentFrame],
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		0,
@@ -130,7 +130,7 @@ b8 valheim_beginScene( valheim_VulkanContext *context, valheim_Allocator *alloca
 
 	valheim_transitionImageLayout(
 		commandBuffer,
-		context->textureManager.images.data[ context->colorTexture ],
+		context->textureManager.images.data[context->colorTexture],
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		0,
@@ -142,7 +142,7 @@ b8 valheim_beginScene( valheim_VulkanContext *context, valheim_Allocator *alloca
 
 	valheim_transitionImageLayout(
 		commandBuffer,
-		context->textureManager.images.data[ context->depthTexture ],
+		context->textureManager.images.data[context->depthTexture],
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
 		0,
@@ -152,44 +152,44 @@ b8 valheim_beginScene( valheim_VulkanContext *context, valheim_Allocator *alloca
 		VK_IMAGE_ASPECT_DEPTH_BIT
 	);
 
-	valheim_beginRendering( context );
+	valheim_beginRendering(context);
 
-	VkViewport viewport = { 0 };
+	VkViewport viewport = {0};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = ( f32 ) context->capabilities.currentExtent.width;
-	viewport.height = ( f32 ) context->capabilities.currentExtent.height;
+	viewport.width = (f32) context->capabilities.currentExtent.width;
+	viewport.height = (f32) context->capabilities.currentExtent.height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
-	VkRect2D scissor = { 0 };
+	VkRect2D scissor = {0};
 	scissor.extent = context->capabilities.currentExtent;
-	scissor.offset = ( VkOffset2D ){ 0, 0 };
+	scissor.offset = (VkOffset2D){0, 0};
 
-	vkCmdSetViewport( commandBuffer, 0, 1, &viewport );
-	vkCmdSetScissor( commandBuffer, 0, 1, &scissor );
+	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	f32 aspectRatio = ( f32 ) context->capabilities.currentExtent.width / ( f32 ) context->capabilities.currentExtent.height;
+	f32 aspectRatio = (f32) context->capabilities.currentExtent.width / (f32) context->capabilities.currentExtent.height;
 
-	valheim_VulkanFrameData frameData = { 0 };
-	glm_perspective( glm_rad( 45.0f ), aspectRatio, 0.01f, 1000.0f, frameData.projection );
-	glm_mat4_identity( frameData.model );
+	valheim_VulkanFrameData frameData = {0};
+	glm_perspective(glm_rad(45.0f), aspectRatio, 0.01f, 1000.0f, frameData.projection);
+	glm_mat4_identity(frameData.model);
 
-	frameData.projection[ 1 ][ 1 ] *= -1;
+	frameData.projection[1][1] *= -1;
 
-	valheim_getCameraView( context, frameData.view );
-	valheim_renderScene( context, &context->worldScene, commandBuffer, &frameData );
-	valheim_renderUi( context, commandBuffer );
+	valheim_getCameraView(context, frameData.view);
+	valheim_renderScene(context, &context->worldScene, commandBuffer, &frameData);
+	valheim_renderUi(context, commandBuffer);
 
 	return true;
 }
 
-b8 valheim_endScene( valheim_VulkanContext *context ) {
-	VkCommandBuffer commandBuffer = valheim_endRendering( context );
+b8 valheim_endScene(valheim_VulkanContext *context) {
+	VkCommandBuffer commandBuffer = valheim_endRendering(context);
 
 	valheim_transitionImageLayout(
 		commandBuffer,
-		context->swapChainImages.data[ context->currentFrame ],
+		context->swapChainImages.data[context->currentFrame],
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
 		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
@@ -199,32 +199,32 @@ b8 valheim_endScene( valheim_VulkanContext *context ) {
 		VK_IMAGE_ASPECT_COLOR_BIT
 	);
 
-	valheim_endCommandBuffer( context, commandBuffer );
+	valheim_endCommandBuffer(context, commandBuffer);
 
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
-	VkSubmitInfo submitInfo = { 0 };
+	VkSubmitInfo submitInfo = {0};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = &context->imageAvailableSemaphores.data[ context->currentFrame ];
+	submitInfo.pWaitSemaphores = &context->imageAvailableSemaphores.data[context->currentFrame];
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = &context->renderFinishedSemaphores.data[ context->currentFrame ];
+	submitInfo.pSignalSemaphores = &context->renderFinishedSemaphores.data[context->currentFrame];
 
-	vkQueueSubmit( context->graphicsQueue, 1, &submitInfo, context->inFlightFences.data[ context->currentFrame ] );
+	vkQueueSubmit(context->graphicsQueue, 1, &submitInfo, context->inFlightFences.data[context->currentFrame]);
 
-	VkPresentInfoKHR presentInfo = { 0 };
+	VkPresentInfoKHR presentInfo = {0};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = &context->renderFinishedSemaphores.data[ context->currentFrame ];
+	presentInfo.pWaitSemaphores = &context->renderFinishedSemaphores.data[context->currentFrame];
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = &context->swapChain;
 	presentInfo.pImageIndices = &context->currentImage;
 
-	VkResult result = vkQueuePresentKHR( context->graphicsQueue, &presentInfo );
+	VkResult result = vkQueuePresentKHR(context->graphicsQueue, &presentInfo);
 
-	context->currentFrame = ( context->currentFrame + 1 ) % context->imageCount;
+	context->currentFrame = (context->currentFrame + 1) % context->imageCount;
 	return true;
 }

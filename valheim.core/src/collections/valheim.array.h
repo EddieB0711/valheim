@@ -15,11 +15,11 @@ typedef struct valheim_Array {
 	u64 capacity;
 } valheim_Array;
 
-VALHEIM_API b8 valheim_initArray( u64 stride, u64 capacity, valheim_Allocator *allocator, valheim_Array *array );
+VALHEIM_API b8 valheim_initArray(u64 stride, u64 capacity, valheim_Allocator *allocator, valheim_Array *array);
 
-VALHEIM_API void valheim_deinitArray( valheim_Array *array, valheim_Allocator *allocator );
+VALHEIM_API void valheim_deinitArray(valheim_Array *array, valheim_Allocator *allocator);
 
-VALHEIM_API b8 valheim_arrayAppend( valheim_Array *array, const void *value, valheim_Allocator *allocator );
+VALHEIM_API b8 valheim_arrayAppend(valheim_Array *array, const void *value, valheim_Allocator *allocator);
 
 #define valheim_indexableArrayUnpack(arr) (u8**)&(arr).data, (arr).length, sizeof(*(arr).data), &(arr).capacity, (arr).allocator
 

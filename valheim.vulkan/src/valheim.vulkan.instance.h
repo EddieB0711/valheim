@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/9/2025.
-//
-
 #ifndef VALHEIM_VALHEIM_VULKAN_INSTANCE_H
 #define VALHEIM_VALHEIM_VULKAN_INSTANCE_H
 

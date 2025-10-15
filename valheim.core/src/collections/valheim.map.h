@@ -8,7 +8,7 @@
 #include "valheim.allocator.h"
 #include "valheim.memory.h"
 
-typedef u64( *valheim_MapHash )( const u8 *, u64, u64 );
+typedef u64(*valheim_MapHash)(const u8 *, u64, u64);
 
 typedef struct valheim_MapNode {
 	void *data;
@@ -23,15 +23,15 @@ typedef struct valheim_Map {
 	u64 capacity;
 } valheim_Map;
 
-VALHEIM_API b8 valheim_initMap( valheim_Map *map, u64 stride, u64 capacity, valheim_MapHash hash, valheim_Allocator *allocator );
+VALHEIM_API b8 valheim_initMap(valheim_Map *map, u64 stride, u64 capacity, valheim_MapHash hash, valheim_Allocator *allocator);
 
-VALHEIM_API void valheim_deinitMap( valheim_Map *map, valheim_Allocator *allocator );
+VALHEIM_API void valheim_deinitMap(valheim_Map *map, valheim_Allocator *allocator);
 
-VALHEIM_API b8 valheim_mapInsert( valheim_Map *map, const void *key, u64 keySize, const void *value, valheim_Allocator *allocator );
+VALHEIM_API b8 valheim_mapInsert(valheim_Map *map, const void *key, u64 keySize, const void *value, valheim_Allocator *allocator);
 
-VALHEIM_API b8 valheim_mapFind( valheim_Map *map, const void *key, u64 keySize, void *value );
+VALHEIM_API b8 valheim_mapFind(valheim_Map *map, const void *key, u64 keySize, void *value);
 
-VALHEIM_API b8 valheim_mapUpdate( valheim_Map *map, const void *key, u64 keySize, const void *value );
+VALHEIM_API b8 valheim_mapUpdate(valheim_Map *map, const void *key, u64 keySize, const void *value);
 
 //#define valheim_Map(k, V)                     \
 //        struct {                              \

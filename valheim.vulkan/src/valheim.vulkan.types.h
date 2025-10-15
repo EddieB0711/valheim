@@ -1,7 +1,3 @@
-//
-// Created by Eddie Boyle on 9/9/2025.
-//
-
 #ifndef VALHEIM_VALHEIM_VULKAN_TYPES_H
 #define VALHEIM_VALHEIM_VULKAN_TYPES_H
 
@@ -15,6 +11,7 @@
 #include <valheim.array.h>
 #include <valheim.map.h>
 #include <valheim.queue.h>
+#include <valheim.thread.h>
 
 #define VALHEIM_STATIC_TEXTURED_MESH "StaticTexturedMesh"
 #define VALHEIM_IMGUI_PIPELINE "ImGuiPipeline"
@@ -22,8 +19,8 @@
 struct valheim_VulkanContext;
 struct valheim_VulkanScene;
 
-typedef b8( *valheim_RunJob )( void *, valheim_Allocator * );
-typedef void ( *valheim_RenderScene )( struct valheim_VulkanContext *, struct valheim_VulkanScene * );
+typedef b8(*valheim_RunJob)(void *, valheim_Allocator *);
+typedef void (*valheim_RenderScene)(struct valheim_VulkanContext *, struct valheim_VulkanScene *);
 
 typedef s32 valheim_Handle;
 typedef valheim_Handle valheim_VulkanBuffer;
@@ -38,33 +35,33 @@ typedef struct valheim_VulkanFrameData {
 } valheim_VulkanFrameData;
 
 typedef struct valheim_VulkanBufferManager {
-	valheim_IndexableArray( VkBuffer ) buffers;
-	valheim_IndexableArray( VkDeviceMemory ) bufferMemory;
-	valheim_IndexableArray( VkDeviceSize ) bufferSizes;
-	valheim_IndexableArray( b8 ) buffersInUse;
+	valheim_IndexableArray(VkBuffer) buffers;
+	valheim_IndexableArray(VkDeviceMemory) bufferMemory;
+	valheim_IndexableArray(VkDeviceSize) bufferSizes;
+	valheim_IndexableArray(b8) buffersInUse;
 } valheim_VulkanBufferManager;
 
 typedef struct valheim_VulkanTextureManager {
-	valheim_IndexableArray( VkImage ) images;
-	valheim_IndexableArray( VkImageView ) imageViews;
-	valheim_IndexableArray( VkSampler ) samplers;
-	valheim_IndexableArray( VkDeviceMemory ) imageMemory;
-	valheim_IndexableArray( VkDeviceSize ) imageSizes;
-	valheim_IndexableArray( b8 ) freeList;
+	valheim_IndexableArray(VkImage) images;
+	valheim_IndexableArray(VkImageView) imageViews;
+	valheim_IndexableArray(VkSampler) samplers;
+	valheim_IndexableArray(VkDeviceMemory) imageMemory;
+	valheim_IndexableArray(VkDeviceSize) imageSizes;
+	valheim_IndexableArray(b8) freeList;
 } valheim_VulkanTextureManager;
 
 typedef struct valheim_VulkanPipelineManager {
-	valheim_IndexableArray( VkPipelineLayout ) pipelineLayouts;
-	valheim_IndexableArray( VkPipeline ) pipelines;
-	valheim_IndexableArray( VkDescriptorSetLayout ) destriptorSetLayouts;
-	valheim_IndexableArray( b8 ) freeList;
+	valheim_IndexableArray(VkPipelineLayout) pipelineLayouts;
+	valheim_IndexableArray(VkPipeline) pipelines;
+	valheim_IndexableArray(VkDescriptorSetLayout) destriptorSetLayouts;
+	valheim_IndexableArray(b8) freeList;
 } valheim_VulkanPipelineManager;
 
 typedef struct valheim_DescriptorSetManager {
-	valheim_IndexableArray( VkDescriptorPool ) descriptorPools;
-	valheim_IndexableArray( VkDescriptorSet * ) descriptorSets;
-	valheim_IndexableArray( u32 ) descriptorSetCounts;
-	valheim_IndexableArray( b8 ) freeList;
+	valheim_IndexableArray(VkDescriptorPool) descriptorPools;
+	valheim_IndexableArray(VkDescriptorSet *) descriptorSets;
+	valheim_IndexableArray(u32) descriptorSetCounts;
+	valheim_IndexableArray(b8) freeList;
 } valheim_DescriptorSetManager;
 
 typedef struct valheim_VulkanMaterial {
@@ -89,7 +86,7 @@ typedef struct valheim_VulkanSceneHeirarchy {
 } valheim_VulkanSceneHeirarchy;
 
 typedef struct valheim_VulkanScene {
-	valheim_IndexableArray( valheim_VulkanSceneHeirarchy ) heirarchies;
+	valheim_IndexableArray(valheim_VulkanSceneHeirarchy) heirarchies;
 	valheim_Map nodeMeshes;
 	valheim_Map nodeMaterials;
 	valheim_Array localTransforms;
@@ -113,28 +110,37 @@ typedef struct valheim_VulkanJob {
 } valheim_VulkanJob;
 
 typedef struct valheim_VulkanJobManager {
-	valheim_IndexableArray( valheim_VulkanJob ) jobs;
+	valheim_IndexableArray(valheim_VulkanJob) jobs;
 } valheim_VulkanJobManager;
 
 typedef struct valheim_VulkanInitializationGraphNode {
 	u32 id;
 	const char *name;
-	valheim_IndexableArray( const char * ) inDegrees;
-	valheim_IndexableArray( const char * ) outDegrees;
-	b8( *initialize )( struct valheim_VulkanContext *, valheim_Allocator * );
+	valheim_IndexableArray(const char *) inDegrees;
+	valheim_IndexableArray(const char *) outDegrees;
+	b8(*initialize)(struct valheim_VulkanContext *, valheim_Allocator *);
 	b8 isInitialized;
 } valheim_VulkanInitializationGraphNode;
 
 typedef struct valheim_VulkanInitializationGraph {
 	valheim_Map nodes;
-	valheim_IndexableArray( valheim_VulkanInitializationGraphNode * ) arrNodes;
-	valheim_IndexableArray( valheim_VulkanInitializationGraphNode * ) sortedNodes;
+	valheim_IndexableArray(valheim_VulkanInitializationGraphNode *) arrNodes;
+	valheim_IndexableArray(valheim_VulkanInitializationGraphNode *) sortedNodes;
 } valheim_VulkanInitializationGraph;
 
 typedef struct valheim_UiInput {
 	b8 shouldShowUI;
 	b8 shouldClose;
 } valheim_UiInput;
+
+typedef struct valheim_ThreadPool {
+	void *internalState;
+} valheim_ThreadPool;
+
+typedef struct valheim_ThreadPoolWork {
+	b8 (*execute)(void *);
+	void *params;
+} valheim_ThreadPoolWork;
 
 typedef struct valheim_VulkanContext {
 	GLFWwindow *window;
@@ -151,13 +157,13 @@ typedef struct valheim_VulkanContext {
 	VkSwapchainKHR swapChain;
 	VkCommandPool commandPool;
 
-	valheim_IndexableArray( VkImage ) swapChainImages;
-	valheim_IndexableArray( VkImageView ) swapChainImageViews;
-	valheim_IndexableArray( VkCommandBuffer ) commandBuffers;
-	valheim_IndexableArray( VkSemaphore ) imageAvailableSemaphores;
-	valheim_IndexableArray( VkSemaphore ) renderFinishedSemaphores;
-	valheim_IndexableArray( VkFence ) inFlightFences;
-	valheim_IndexableArray( VkFence ) imagesInFlight;
+	valheim_IndexableArray(VkImage) swapChainImages;
+	valheim_IndexableArray(VkImageView) swapChainImageViews;
+	valheim_IndexableArray(VkCommandBuffer) commandBuffers;
+	valheim_IndexableArray(VkSemaphore) imageAvailableSemaphores;
+	valheim_IndexableArray(VkSemaphore) renderFinishedSemaphores;
+	valheim_IndexableArray(VkFence) inFlightFences;
+	valheim_IndexableArray(VkFence) imagesInFlight;
 
 	valheim_Map pipelineHandles;
 
@@ -168,6 +174,8 @@ typedef struct valheim_VulkanContext {
 	valheim_DescriptorSetManager descriptorSetManager;
 	valheim_VulkanScene worldScene;
 	valheim_VulkanBuffer frameDataBuffer;
+
+	valheim_ThreadPool threadPool;
 
 	valheim_UiInput uiInput;
 
